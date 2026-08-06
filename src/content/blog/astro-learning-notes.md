@@ -7,6 +7,8 @@ tags:
   - 前端入门
   - 学习记录
 draft: false
+cover: "./astro-learning-cover.jpg"
+coverAlt: "带有 Astro 学习主题的博客文章封面"
 ---
 
 我最初只是想制作一个简单网页，但很快发现，一个真正的网站不仅包含 HTML 和 CSS，还需要理解路由、组件、构建和部署。

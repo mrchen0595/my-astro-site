@@ -8,30 +8,37 @@ const blog = defineCollection({
     pattern: "**/*.md",
   }),
 
-  schema: z.object({
-    title: z
-      .string()
-      .min(1, "文章标题不能为空"),
+  schema: ({ image }) =>
+    z.object({
+      title: z
+        .string()
+        .min(1, "文章标题不能为空"),
 
-    description: z
-      .string()
-      .min(1, "文章简介不能为空"),
+      description: z
+        .string()
+        .min(1, "文章简介不能为空"),
 
-    pubDate: z.coerce.date(),
+      pubDate: z.coerce.date(),
 
-    updatedDate: z
-      .coerce
-      .date()
-      .optional(),
+      updatedDate: z
+        .coerce
+        .date()
+        .optional(),
 
-    tags: z
-      .array(z.string())
-      .default([]),
+      tags: z
+        .array(z.string())
+        .default([]),
 
-    draft: z
-      .boolean()
-      .default(false),
-  }),
+      draft: z
+        .boolean()
+        .default(false),
+
+      cover: image(),
+
+      coverAlt: z
+        .string()
+        .min(1, "封面图片说明不能为空"),
+    }),
 });
 
 export const collections = {

@@ -7,6 +7,8 @@ tags:
   - 组件化
   - 前端架构
 draft: false
+cover: "./component-thinking-cover.jpg"
+coverAlt: "表现网页模块与组件结构的文章封面"
 ---
 
 刚开始制作网页时，把所有 HTML 和 CSS 写在一个文件里似乎最简单。

@@ -1,4 +1,12 @@
 ---
+import type {
+  ImageMetadata,
+} from "astro";
+
+import {
+  getImage,
+} from "astro:assets";
+
 interface Props {
   title: string;
   description?: string;
@@ -7,6 +15,9 @@ interface Props {
 
   publishedTime?: Date;
   updatedTime?: Date;
+
+  image?: ImageMetadata;
+  imageAlt?: string;
 }
 
 const {
@@ -18,10 +29,31 @@ const {
 
   publishedTime,
   updatedTime,
+  image,
+  imageAlt,
 } = Astro.props;
 
 const baseURL =
   Astro.site ?? Astro.url.origin;
+
+const optimizedSocialImage =
+  image
+    ? await getImage({
+        src: image,
+        width: 1200,
+        height: 630,
+        format: "jpg",
+        fit: "cover",
+      })
+    : null;
+
+const socialImageURL =
+  optimizedSocialImage
+    ? new URL(
+        optimizedSocialImage.src,
+        baseURL
+      ).href
+    : null;
 
 const canonicalURL =
   new URL(
@@ -88,6 +120,29 @@ const updatedISO =
       title="William Chan 的博客 RSS"
       href={rssURL.href}
     />
+        {
+      socialImageURL && (
+        <>
+          <meta
+            property="og:image"
+            content={socialImageURL}
+          />
+
+          <meta
+            property="og:image:alt"
+            content={
+              imageAlt ??
+              description
+            }
+          />
+
+          <meta
+            name="twitter:image"
+            content={socialImageURL}
+          />
+        </>
+      )
+    }
 
     <!-- Open Graph -->
     <meta

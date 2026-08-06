@@ -1,0 +1,59 @@
+---
+import type { ImageMetadata } from "astro";
+import { Image } from "astro:assets";
+
+interface Props {
+  src: ImageMetadata;
+  alt: string;
+  variant?: "card" | "article";
+  eager?: boolean;
+}
+
+const {
+  src,
+  alt,
+  variant = "card",
+  eager = false,
+} = Astro.props;
+
+const width =
+  variant === "article"
+    ? 1200
+    : 720;
+
+const height =
+  variant === "article"
+    ? 630
+    : 405;
+
+const className =
+  `blog-cover ${variant}`;
+---
+
+<Image
+  src={src}
+  alt={alt}
+  width={width}
+  height={height}
+  layout="constrained"
+  fit="cover"
+  loading={eager ? "eager" : "lazy"}
+  class={className}
+/>
+
+<style>
+  :global(.blog-cover) {
+    display: block;
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+  }
+
+  :global(.blog-cover.card) {
+    aspect-ratio: 16 / 9;
+  }
+
+  :global(.blog-cover.article) {
+    aspect-ratio: 1200 / 630;
+  }
+</style>

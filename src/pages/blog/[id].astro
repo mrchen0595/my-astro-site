@@ -11,6 +11,9 @@ import BaseLayout from
 import Header from
   "../../components/Header.astro";
 
+import BlogCover from
+  "../../components/BlogCover.astro";
+
 interface Props {
   post: CollectionEntry<"blog">;
 }
@@ -56,6 +59,8 @@ const formattedDate =
   pageType="article"
   publishedTime={post.data.pubDate}
   updatedTime={post.data.updatedDate}
+  image={post.data.cover}
+  imageAlt={post.data.coverAlt}
 >
   <Header />
 
@@ -98,7 +103,14 @@ const formattedDate =
           )
         }
       </header>
-
+            <figure class="article-cover">
+        <BlogCover
+          src={post.data.cover}
+          alt={post.data.coverAlt}
+          variant="article"
+          eager={true}
+        />
+      </figure>
       <div class="article-content">
         <Content />
       </div>
@@ -107,6 +119,21 @@ const formattedDate =
 </BaseLayout>
 
 <style is:global>
+.article-cover {
+  margin:
+    36px
+    0
+    0;
+  overflow: hidden;
+  border-radius: 18px;
+  background: #eef0f5;
+}
+
+.article-cover img {
+  display: block;
+  width: 100%;
+}
+
   .article-page {
     width: min(
       820px,
