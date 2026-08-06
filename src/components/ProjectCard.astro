@@ -1,0 +1,138 @@
+---
+interface Props {
+  title: string;
+  description: string;
+  technologies: string[];
+  status?: string;
+  href?: string;
+}
+
+const {
+  title,
+  description,
+  technologies,
+  status = "已完成",
+  href,
+} = Astro.props;
+---
+
+<article class="project-card">
+  <div class="card-header">
+    <h2>{title}</h2>
+    <span class="status">{status}</span>
+  </div>
+
+  <p class="description">
+    {description}
+  </p>
+
+  <ul class="technology-list" aria-label="使用的技术">
+    {
+      technologies.map((technology) => (
+        <li>{technology}</li>
+      ))
+    }
+  </ul>
+
+  {
+    href ? (
+      <a class="project-link" href={href}>
+        查看项目
+        <span aria-hidden="true">→</span>
+      </a>
+    ) : (
+      <span class="unavailable">暂未开放</span>
+    )
+  }
+</article>
+
+<style>
+  .project-card {
+    display: flex;
+    flex-direction: column;
+    min-height: 310px;
+    padding: 28px;
+    border: 1px solid #dfe2ea;
+    border-radius: 20px;
+    background: white;
+    box-shadow: 0 14px 40px rgba(30, 35, 70, 0.06);
+    transition:
+      transform 160ms ease,
+      box-shadow 160ms ease;
+  }
+
+  .project-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 50px rgba(30, 35, 70, 0.1);
+  }
+
+  .card-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 18px;
+  }
+
+  h2 {
+    margin: 0;
+    font-size: 23px;
+    line-height: 1.35;
+  }
+
+  .status {
+    flex-shrink: 0;
+    padding: 6px 10px;
+    border-radius: 999px;
+    background: #eeecff;
+    color: #5145cd;
+    font-size: 12px;
+    font-weight: 800;
+  }
+
+  .description {
+    margin: 20px 0 0;
+    color: #676c78;
+    line-height: 1.75;
+  }
+
+  .technology-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 24px 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .technology-list li {
+    padding: 7px 10px;
+    border-radius: 8px;
+    background: #f2f3f7;
+    color: #494e59;
+    font-size: 13px;
+    font-weight: 700;
+  }
+
+  .project-link,
+  .unavailable {
+    margin-top: auto;
+    padding-top: 30px;
+    font-weight: 800;
+  }
+
+  .project-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: #5145cd;
+    text-decoration: none;
+  }
+
+  .project-link:hover {
+    text-decoration: underline;
+  }
+
+  .unavailable {
+    color: #9297a3;
+  }
+</style>

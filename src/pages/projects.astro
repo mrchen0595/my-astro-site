@@ -1,0 +1,136 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Header from "../components/Header.astro";
+import ProjectCard from "../components/ProjectCard.astro";
+
+const projects = [
+  {
+    title: "Astro 个人网站",
+    description:
+      "我的第一个 Astro 项目，包含首页、公共布局、导航组件和响应式页面样式。",
+    technologies: [
+      "Astro",
+      "HTML",
+      "CSS",
+      "JavaScript",
+    ],
+    status: "已上线",
+    href: "/",
+  },
+  {
+    title: "关于页面",
+    description:
+      "一个独立的内容页面，用于练习文件路由、公共组件和页面布局复用。",
+    technologies: [
+      "Astro 路由",
+      "组件复用",
+      "响应式设计",
+    ],
+    status: "已完成",
+    href: "/about",
+  },
+  {
+    title: "联系表单",
+    description:
+      "下一阶段将制作的功能，用于学习表单输入、验证和提交状态处理。",
+    technologies: [
+      "HTML Form",
+      "JavaScript",
+      "表单验证",
+    ],
+    status: "规划中",
+  },
+];
+---
+
+<BaseLayout
+  title="项目 | William 的网站"
+  description="William 的前端学习项目展示"
+>
+  <Header />
+
+  <main>
+    <section class="page-heading">
+      <p class="label">MY PROJECTS</p>
+
+      <h1>项目展示</h1>
+
+      <p class="intro">
+        这里记录我在前端学习过程中完成的项目。
+        每一个项目都对应一组具体的技术和实践目标。
+      </p>
+    </section>
+
+    <section
+      class="project-grid"
+      aria-label="项目列表"
+    >
+      {
+        projects.map((project) => (
+          <ProjectCard {...project} />
+        ))
+      }
+    </section>
+  </main>
+</BaseLayout>
+
+<style>
+  main {
+    width: min(1100px, calc(100% - 40px));
+    margin: 0 auto;
+    padding: 80px 0 100px;
+  }
+
+  .page-heading {
+    max-width: 760px;
+  }
+
+  .label {
+    margin: 0;
+    color: #5145cd;
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: 0.18em;
+  }
+
+  h1 {
+    margin: 14px 0 22px;
+    font-size: clamp(48px, 8vw, 78px);
+    line-height: 1.05;
+    letter-spacing: -0.055em;
+  }
+
+  .intro {
+    margin: 0;
+    color: #676c78;
+    font-size: 20px;
+    line-height: 1.8;
+  }
+
+  .project-grid {
+    display: grid;
+    grid-template-columns:
+      repeat(3, minmax(0, 1fr));
+    gap: 20px;
+    margin-top: 64px;
+  }
+
+  @media (max-width: 900px) {
+    .project-grid {
+      grid-template-columns:
+        repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 640px) {
+    main {
+      width: min(100% - 24px, 1100px);
+      padding-top: 50px;
+    }
+
+    .project-grid {
+      grid-template-columns: 1fr;
+      margin-top: 44px;
+    }
+  }
+</style>
