@@ -1,0 +1,24 @@
+# Dependencies and generated output
+node_modules/
+dist/
+.astro/
+.vercel/
+
+# Local secrets
+.env
+.env.*
+
+# npm-generated lockfile
+package-lock.json
+
+# Binary files
+**/*.jpg
+**/*.jpeg
+**/*.png
+**/*.gif
+**/*.webp
+**/*.ico
+**/*.pdf
+
+# Preserve deliberate article formatting
+src/content/blog/**/*.md

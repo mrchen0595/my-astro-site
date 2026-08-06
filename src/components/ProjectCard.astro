@@ -19,49 +19,58 @@ const {
 <article class="project-card">
   <div class="card-header">
     <h2>{title}</h2>
-    <span class="status">{status}</span>
+
+    <span class="status">
+      {status}
+    </span>
   </div>
 
   <p class="description">
     {description}
   </p>
 
-  <ul class="technology-list" aria-label="使用的技术">
-    {
-      technologies.map((technology) => (
-        <li>{technology}</li>
-      ))
-    }
+  <ul class="technology-list" aria-label={`${title} 使用的技术`}>
+    {technologies.map((technology) => <li>{technology}</li>)}
   </ul>
 
-  {
-    href ? (
-      <a class="project-link" href={href}>
-        查看项目
-        <span aria-hidden="true">→</span>
-      </a>
-    ) : (
-      <span class="unavailable">暂未开放</span>
-    )
-  }
+  <div class="card-footer">
+    {
+      href ? (
+        <a class="project-link" href={href}>
+          查看项目
+          <span aria-hidden="true">→</span>
+        </a>
+      ) : (
+        <span class="unavailable">暂未开放</span>
+      )
+    }
+  </div>
 </article>
 
 <style>
   .project-card {
     display: flex;
     flex-direction: column;
-    min-height: 310px;
+    min-width: 0;
+    min-height: 360px;
     padding: 28px;
-    border: 1px solid var(--color-border)olor-border)olor-border);
+    overflow: hidden;
+    border: 1px solid var(--color-border);
     border-radius: 20px;
     background: var(--color-surface);
     box-shadow: var(--shadow-card);
     transition:
       transform 160ms ease,
+      border-color 160ms ease,
       box-shadow 160ms ease;
   }
 
   .project-card:hover {
+    border-color: color-mix(
+      in srgb,
+      var(--color-accent) 45%,
+      var(--color-border)
+    );
     transform: translateY(-4px);
     box-shadow: var(--shadow-card-hover);
   }
@@ -71,12 +80,16 @@ const {
     align-items: flex-start;
     justify-content: space-between;
     gap: 18px;
+    min-width: 0;
   }
 
   h2 {
+    min-width: 0;
     margin: 0;
+    color: var(--color-text);
     font-size: 23px;
     line-height: 1.35;
+    overflow-wrap: anywhere;
   }
 
   .status {
@@ -84,15 +97,18 @@ const {
     padding: 6px 10px;
     border-radius: 999px;
     background: var(--color-accent-soft);
-    color: var(--color-accent)olor-accent)olor-accent)olor-accent);
+    color: var(--color-accent);
     font-size: 12px;
     font-weight: 800;
+    line-height: 1.2;
+    white-space: nowrap;
   }
 
   .description {
     margin: 20px 0 0;
-    color: vvar(--color-muted);
+    color: var(--color-muted);
     line-height: 1.75;
+    overflow-wrap: anywhere;
   }
 
   .technology-list {
@@ -111,28 +127,51 @@ const {
     color: var(--color-text-soft);
     font-size: 13px;
     font-weight: 700;
+    line-height: 1.25;
   }
 
-  .project-link,
-  .unavailable {
+  .card-footer {
+    display: flex;
+    align-items: flex-end;
+    min-height: 30px;
     margin-top: auto;
     padding-top: 30px;
-    font-weight: 800;
   }
 
   .project-link {
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    color: var(--color-accent)olor-accent);
+    width: fit-content;
+    color: var(--color-accent);
+    font-weight: 800;
     text-decoration: none;
   }
 
   .project-link:hover {
+    color: var(--color-accent-hover);
     text-decoration: underline;
+    text-underline-offset: 4px;
   }
 
   .unavailable {
     color: var(--color-disabled);
+    font-weight: 800;
+  }
+
+  @media (max-width: 480px) {
+    .project-card {
+      min-height: 0;
+      padding: 22px;
+    }
+
+    .card-header {
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .status {
+      align-self: flex-start;
+    }
   }
 </style>
