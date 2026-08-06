@@ -1,0 +1,168 @@
+---
+import BaseLayout from
+  "../layouts/BaseLayout.astro";
+
+import Header from
+  "../components/Header.astro";
+
+import ContactForm from
+  "../components/ContactForm.astro";
+---
+
+<BaseLayout
+  title="联系 | William 的网站"
+  description="通过联系表单向 William 留言"
+>
+  <Header />
+
+  <main>
+    <section class="page-heading">
+      <p class="label">CONTACT ME</p>
+
+      <h1>保持联系</h1>
+
+      <p class="intro">
+        这是一个用于学习网页表单和客户端验证的演示页面。
+        当前阶段不会真正发送信息。
+      </p>
+    </section>
+
+    <section class="contact-layout">
+      <aside class="information">
+        <div class="info-card">
+          <p class="info-label">
+            当前状态
+          </p>
+
+          <h2>正在学习前端开发</h2>
+
+          <p>
+            当前网站使用 Astro、HTML、
+            CSS 和原生 JavaScript 构建。
+          </p>
+        </div>
+
+        <div class="info-card">
+          <p class="info-label">
+            本页练习目标
+          </p>
+
+          <ul>
+            <li>HTML 表单控件</li>
+            <li>必填字段和格式校验</li>
+            <li>JavaScript 提交事件</li>
+            <li>错误和成功状态</li>
+          </ul>
+        </div>
+      </aside>
+
+      <ContactForm />
+    </section>
+  </main>
+</BaseLayout>
+
+<style>
+  main {
+    width: min(
+      1100px,
+      calc(100% - 40px)
+    );
+    margin: 0 auto;
+    padding: 80px 0 100px;
+  }
+
+  .page-heading {
+    max-width: 760px;
+  }
+
+  .label,
+  .info-label {
+    margin: 0;
+    color: #5145cd;
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: 0.18em;
+  }
+
+  h1 {
+    margin: 14px 0 22px;
+    font-size: clamp(
+      48px,
+      8vw,
+      78px
+    );
+    line-height: 1.05;
+    letter-spacing: -0.055em;
+  }
+
+  .intro {
+    margin: 0;
+    color: #676c78;
+    font-size: 20px;
+    line-height: 1.8;
+  }
+
+  .contact-layout {
+    display: grid;
+    grid-template-columns:
+      minmax(0, 0.8fr)
+      minmax(0, 1.2fr);
+    gap: 28px;
+    align-items: start;
+    margin-top: 64px;
+  }
+
+  .information {
+    display: grid;
+    gap: 18px;
+  }
+
+  .info-card {
+    padding: 26px;
+    border: 1px solid #dfe2ea;
+    border-radius: 18px;
+    background:
+      rgba(255, 255, 255, 0.7);
+  }
+
+  .info-card h2 {
+    margin: 13px 0;
+    font-size: 24px;
+  }
+
+  .info-card p:not(.info-label) {
+    margin-bottom: 0;
+    color: #676c78;
+    line-height: 1.75;
+  }
+
+  .info-card ul {
+    margin-bottom: 0;
+    padding-left: 22px;
+  }
+
+  .info-card li {
+    margin: 11px 0;
+    line-height: 1.6;
+  }
+
+  @media (max-width: 800px) {
+    .contact-layout {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 600px) {
+    main {
+      width: min(
+        100% - 24px,
+        1100px
+      );
+      padding-top: 50px;
+    }
+
+    .contact-layout {
+      margin-top: 44px;
+    }
+  }
+</style>

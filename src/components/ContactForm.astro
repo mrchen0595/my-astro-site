@@ -1,0 +1,526 @@
+<form id="contact-form" class="contact-form" novalidate>
+  <div class="field">
+    <label for="contact-name">
+      姓名
+      <span aria-hidden="true">*</span>
+    </label>
+
+    <input
+      id="contact-name"
+      name="name"
+      type="text"
+      autocomplete="name"
+      required
+      minlength="2"
+      maxlength="40"
+      data-validate
+      aria-describedby="contact-name-error"
+    />
+
+    <p
+      id="contact-name-error"
+      class="field-error"
+      aria-live="polite"
+    ></p>
+  </div>
+
+  <div class="field">
+    <label for="contact-email">
+      邮箱
+      <span aria-hidden="true">*</span>
+    </label>
+
+    <input
+      id="contact-email"
+      name="email"
+      type="email"
+      autocomplete="email"
+      required
+      maxlength="100"
+      data-validate
+      aria-describedby="contact-email-error"
+    />
+
+    <p
+      id="contact-email-error"
+      class="field-error"
+      aria-live="polite"
+    ></p>
+  </div>
+
+  <div class="field">
+    <label for="contact-subject">
+      主题
+    </label>
+
+    <input
+      id="contact-subject"
+      name="subject"
+      type="text"
+      maxlength="80"
+      placeholder="例如：项目合作"
+    />
+  </div>
+
+  <div class="field">
+    <label for="contact-message">
+      留言
+      <span aria-hidden="true">*</span>
+    </label>
+
+    <textarea
+      id="contact-message"
+      name="message"
+      rows="7"
+      required
+      minlength="10"
+      maxlength="1000"
+      data-validate
+      aria-describedby="contact-message-error contact-message-help"
+    ></textarea>
+
+    <div class="field-meta">
+      <p id="contact-message-help">
+        至少输入 10 个字符。
+      </p>
+
+      <p>
+        <span id="message-count">0</span>/1000
+      </p>
+    </div>
+
+    <p
+      id="contact-message-error"
+      class="field-error"
+      aria-live="polite"
+    ></p>
+  </div>
+
+  <button id="submit-button" type="submit">
+    提交表单
+  </button>
+
+  <p class="demo-note">
+    当前为前端演示，填写内容不会被发送或保存。
+  </p>
+
+  <p
+    id="form-status"
+    class="form-status"
+    role="status"
+    aria-live="polite"
+  ></p>
+</form>
+
+<script>
+  type ValidatedField =
+    | HTMLInputElement
+    | HTMLTextAreaElement;
+
+  const form =
+    document.querySelector<HTMLFormElement>(
+      "#contact-form"
+    );
+
+  if (form) {
+    const fields = Array.from(
+      form.querySelectorAll<ValidatedField>(
+        "[data-validate]"
+      )
+    );
+
+    const submitButton =
+      form.querySelector<HTMLButtonElement>(
+        "#submit-button"
+      );
+
+    const formStatus =
+      form.querySelector<HTMLParagraphElement>(
+        "#form-status"
+      );
+
+    const messageField =
+      form.querySelector<HTMLTextAreaElement>(
+        "#contact-message"
+      );
+
+    const messageCount =
+      form.querySelector<HTMLSpanElement>(
+        "#message-count"
+      );
+
+    function getErrorElement(
+      field: ValidatedField
+    ): HTMLElement | null {
+      const describedBy =
+        field.getAttribute("aria-describedby");
+
+      if (!describedBy) {
+        return null;
+      }
+
+      const errorId = describedBy
+        .split(" ")
+        .find((id) => id.endsWith("-error"));
+
+      return errorId
+        ? document.getElementById(errorId)
+        : null;
+    }
+
+    function setCustomMessage(
+      field: ValidatedField
+    ): void {
+      const value = field.value.trim();
+
+      field.setCustomValidity("");
+
+      if (!value) {
+        if (field.id === "contact-name") {
+          field.setCustomValidity("请输入姓名。");
+        }
+
+        if (field.id === "contact-email") {
+          field.setCustomValidity("请输入邮箱地址。");
+        }
+
+        if (field.id === "contact-message") {
+          field.setCustomValidity("请输入留言内容。");
+        }
+
+        return;
+      }
+
+      if (
+        field.id === "contact-name" &&
+        value.length < 2
+      ) {
+        field.setCustomValidity(
+          "姓名至少需要 2 个字符。"
+        );
+        return;
+      }
+
+      if (
+        field.id === "contact-email" &&
+        field.validity.typeMismatch
+      ) {
+        field.setCustomValidity(
+          "请输入有效的邮箱地址。"
+        );
+        return;
+      }
+
+      if (
+        field.id === "contact-message" &&
+        value.length < 10
+      ) {
+        field.setCustomValidity(
+          "留言至少需要 10 个字符。"
+        );
+      }
+    }
+
+    function validateField(
+      field: ValidatedField
+    ): boolean {
+      setCustomMessage(field);
+
+      const isValid = field.checkValidity();
+      const errorElement =
+        getErrorElement(field);
+
+      field.setAttribute(
+        "aria-invalid",
+        String(!isValid)
+      );
+
+      field
+        .closest(".field")
+        ?.classList.toggle(
+          "has-error",
+          !isValid
+        );
+
+      if (errorElement) {
+        errorElement.textContent =
+          isValid ? "" : field.validationMessage;
+      }
+
+      return isValid;
+    }
+
+    function clearFieldState(
+      field: ValidatedField
+    ): void {
+      field.setCustomValidity("");
+      field.setAttribute(
+        "aria-invalid",
+        "false"
+      );
+
+      field
+        .closest(".field")
+        ?.classList.remove("has-error");
+
+      const errorElement =
+        getErrorElement(field);
+
+      if (errorElement) {
+        errorElement.textContent = "";
+      }
+    }
+
+    fields.forEach((field) => {
+      field.addEventListener("blur", () => {
+        validateField(field);
+      });
+
+      field.addEventListener("input", () => {
+        if (
+          field.getAttribute("aria-invalid") ===
+          "true"
+        ) {
+          validateField(field);
+        }
+      });
+    });
+
+    messageField?.addEventListener(
+      "input",
+      () => {
+        if (messageCount) {
+          messageCount.textContent =
+            String(messageField.value.length);
+        }
+      }
+    );
+
+    form.addEventListener(
+      "submit",
+      async (event) => {
+        event.preventDefault();
+
+        const results =
+          fields.map(validateField);
+
+        const allValid =
+          results.every(Boolean);
+
+        if (!allValid) {
+          const firstInvalid =
+            fields.find(
+              (field) =>
+                field.getAttribute(
+                  "aria-invalid"
+                ) === "true"
+            );
+
+          firstInvalid?.focus();
+
+          if (formStatus) {
+            formStatus.className =
+              "form-status error";
+
+            formStatus.textContent =
+              "表单中还有错误，请检查后重新提交。";
+          }
+
+          return;
+        }
+
+        const formData =
+          new FormData(form);
+
+        const name = String(
+          formData.get("name") ?? ""
+        ).trim();
+
+        if (submitButton) {
+          submitButton.disabled = true;
+          submitButton.textContent =
+            "正在验证…";
+        }
+
+        if (formStatus) {
+          formStatus.className =
+            "form-status";
+
+          formStatus.textContent =
+            "正在处理表单内容…";
+        }
+
+        await new Promise((resolve) => {
+          window.setTimeout(resolve, 800);
+        });
+
+        console.log(
+          "表单演示数据：",
+          Object.fromEntries(
+            formData.entries()
+          )
+        );
+
+        form.reset();
+
+        fields.forEach(clearFieldState);
+
+        if (messageCount) {
+          messageCount.textContent = "0";
+        }
+
+        if (submitButton) {
+          submitButton.disabled = false;
+          submitButton.textContent =
+            "提交表单";
+        }
+
+        if (formStatus) {
+          formStatus.className =
+            "form-status success";
+
+          formStatus.textContent =
+            `验证通过，${name}。这是前端演示，数据尚未发送。`;
+        }
+      }
+    );
+  }
+</script>
+
+<style>
+  .contact-form {
+    padding: 32px;
+    border: 1px solid #dfe2ea;
+    border-radius: 22px;
+    background: white;
+    box-shadow:
+      0 18px 50px
+      rgba(30, 35, 70, 0.07);
+  }
+
+  .field + .field {
+    margin-top: 22px;
+  }
+
+  label {
+    display: block;
+    margin-bottom: 9px;
+    font-weight: 800;
+  }
+
+  label span {
+    color: #c24141;
+  }
+
+  input,
+  textarea {
+    width: 100%;
+    padding: 13px 14px;
+    border: 1px solid #cfd3dd;
+    border-radius: 11px;
+    outline: none;
+    background: #fff;
+    color: #16181d;
+    transition:
+      border-color 150ms ease,
+      box-shadow 150ms ease;
+  }
+
+  textarea {
+    min-height: 170px;
+    resize: vertical;
+    line-height: 1.7;
+  }
+
+  input:focus,
+  textarea:focus {
+    border-color: #5145cd;
+    box-shadow:
+      0 0 0 4px
+      rgba(81, 69, 205, 0.12);
+  }
+
+  .has-error input,
+  .has-error textarea {
+    border-color: #c24141;
+  }
+
+  .has-error input:focus,
+  .has-error textarea:focus {
+    box-shadow:
+      0 0 0 4px
+      rgba(194, 65, 65, 0.12);
+  }
+
+  .field-error {
+    min-height: 20px;
+    margin: 7px 0 0;
+    color: #b42318;
+    font-size: 14px;
+    font-weight: 700;
+  }
+
+  .field-meta {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    margin-top: 7px;
+    color: #777d89;
+    font-size: 13px;
+  }
+
+  .field-meta p {
+    margin: 0;
+  }
+
+  button {
+    width: 100%;
+    min-height: 50px;
+    margin-top: 26px;
+    border: 0;
+    border-radius: 11px;
+    background: #5145cd;
+    color: white;
+    font-weight: 800;
+    cursor: pointer;
+  }
+
+  button:hover:not(:disabled) {
+    transform: translateY(-2px);
+  }
+
+  button:disabled {
+    cursor: wait;
+    opacity: 0.65;
+  }
+
+  .demo-note {
+    margin: 14px 0 0;
+    color: #777d89;
+    font-size: 13px;
+    line-height: 1.6;
+    text-align: center;
+  }
+
+  .form-status {
+    min-height: 24px;
+    margin: 18px 0 0;
+    font-weight: 800;
+    line-height: 1.6;
+    text-align: center;
+  }
+
+  .form-status.success {
+    color: #15803d;
+  }
+
+  .form-status.error {
+    color: #b42318;
+  }
+
+  @media (max-width: 600px) {
+    .contact-form {
+      padding: 22px;
+    }
+  }
+</style>
