@@ -1,0 +1,282 @@
+<button
+  class="theme-toggle"
+  type="button"
+  data-theme-toggle
+  aria-label="切换网站主题"
+>
+  <span
+    class="theme-icon"
+    data-theme-icon
+    aria-hidden="true"
+  >
+    ◐
+  </span>
+
+  <span
+    class="theme-label"
+    data-theme-label
+  >
+    系统
+  </span>
+</button>
+
+<script>
+  type ThemePreference =
+    | "system"
+    | "light"
+    | "dark";
+
+  const storageKey =
+    "william-site-theme";
+
+  const systemTheme =
+    window.matchMedia(
+      "(prefers-color-scheme: dark)"
+    );
+
+  const themeOrder:
+    ThemePreference[] = [
+      "system",
+      "light",
+      "dark",
+    ];
+
+  const labels:
+    Record<ThemePreference, string> = {
+      system: "系统",
+      light: "浅色",
+      dark: "深色",
+    };
+
+  const icons:
+    Record<ThemePreference, string> = {
+      system: "◐",
+      light: "☀",
+      dark: "☾",
+    };
+
+  function isThemePreference(
+    value: string | undefined
+  ): value is ThemePreference {
+    return (
+      value === "system" ||
+      value === "light" ||
+      value === "dark"
+    );
+  }
+
+  function getPreference():
+    ThemePreference {
+    const value =
+      document.documentElement
+        .dataset.themePreference;
+
+    return isThemePreference(value)
+      ? value
+      : "system";
+  }
+
+  function resolveTheme(
+    preference: ThemePreference
+  ): "light" | "dark" {
+    if (preference !== "system") {
+      return preference;
+    }
+
+    return systemTheme.matches
+      ? "dark"
+      : "light";
+  }
+
+  function savePreference(
+    preference: ThemePreference
+  ): void {
+    try {
+      localStorage.setItem(
+        storageKey,
+        preference
+      );
+    } catch {
+      // 存储不可用时，当前页面仍然可以切换。
+    }
+  }
+
+  function updateControls(
+    preference: ThemePreference
+  ): void {
+    document
+      .querySelectorAll<HTMLButtonElement>(
+        "[data-theme-toggle]"
+      )
+      .forEach((button) => {
+        const label =
+          labels[preference];
+
+        const icon =
+          icons[preference];
+
+        const labelElement =
+          button.querySelector<HTMLElement>(
+            "[data-theme-label]"
+          );
+
+        const iconElement =
+          button.querySelector<HTMLElement>(
+            "[data-theme-icon]"
+          );
+
+        if (labelElement) {
+          labelElement.textContent = label;
+        }
+
+        if (iconElement) {
+          iconElement.textContent = icon;
+        }
+
+        button.setAttribute(
+          "aria-label",
+          `当前主题偏好：${label}。点击切换主题。`
+        );
+
+        button.title =
+          `当前：${label}主题`;
+      });
+  }
+
+  function applyPreference(
+    preference: ThemePreference,
+    persist = true
+  ): void {
+    const root =
+      document.documentElement;
+
+    root.dataset.theme =
+      resolveTheme(preference);
+
+    root.dataset.themePreference =
+      preference;
+
+    if (persist) {
+      savePreference(preference);
+    }
+
+    updateControls(preference);
+  }
+
+  function initializeThemeToggle():
+    void {
+    const preference =
+      getPreference();
+
+    updateControls(preference);
+
+    document
+      .querySelectorAll<HTMLButtonElement>(
+        "[data-theme-toggle]"
+      )
+      .forEach((button) => {
+        if (
+          button.dataset.themeInitialized ===
+          "true"
+        ) {
+          return;
+        }
+
+        button.dataset.themeInitialized =
+          "true";
+
+        button.addEventListener(
+          "click",
+          () => {
+            const current =
+              getPreference();
+
+            const currentIndex =
+              themeOrder.indexOf(current);
+
+            const nextIndex =
+              (currentIndex + 1) %
+              themeOrder.length;
+
+            applyPreference(
+              themeOrder[nextIndex]
+            );
+          }
+        );
+      });
+  }
+
+  initializeThemeToggle();
+
+  systemTheme.addEventListener(
+    "change",
+    () => {
+      if (
+        getPreference() === "system"
+      ) {
+        applyPreference(
+          "system",
+          false
+        );
+      }
+    }
+  );
+</script>
+
+<style>
+  .theme-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    min-height: 39px;
+    padding: 0 12px;
+    border: 1px solid
+      var(--color-border);
+    border-radius: 10px;
+    background:
+      var(--color-surface);
+    color: var(--color-text-soft);
+    font-weight: 700;
+    cursor: pointer;
+    transition:
+      border-color 150ms ease,
+      background-color 150ms ease,
+      color 150ms ease,
+      transform 150ms ease;
+  }
+
+  .theme-toggle:hover {
+    border-color:
+      var(--color-accent);
+    color: var(--color-accent);
+    transform: translateY(-1px);
+  }
+
+  .theme-icon {
+    width: 18px;
+    font-size: 18px;
+    line-height: 1;
+    text-align: center;
+  }
+
+  .theme-label {
+    font-size: 14px;
+  }
+
+  @media (max-width: 520px) {
+    .theme-label {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+      white-space: nowrap;
+    }
+
+    .theme-toggle {
+      width: 40px;
+      padding: 0;
+    }
+  }
+</style>

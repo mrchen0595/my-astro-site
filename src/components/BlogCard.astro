@@ -85,12 +85,11 @@ const formattedDate =
     min-width: 0;
     height: 100%;
     overflow: hidden;
-    border: 1px solid #dfe2ea;
+    border: 1px solid var(--color-border);
     border-radius: 20px;
-    background: white;
+    background: var(--color-surface);
     box-shadow:
-      0 14px 40px
-      rgba(30, 35, 70, 0.05);
+      var(--shadow-card);
     transition:
       transform 160ms ease,
       box-shadow 160ms ease;
@@ -99,14 +98,13 @@ const formattedDate =
   .blog-card:hover {
     transform: translateY(-4px);
     box-shadow:
-      0 20px 50px
-      rgba(30, 35, 70, 0.1);
+      var(--shadow-card-hover);
   }
 
   .cover-link {
     display: block;
     overflow: hidden;
-    background: #e9ecf5;
+    background: var(--color-subtle);
   }
 
   .cover-link :global(.blog-cover.card) {
@@ -131,7 +129,7 @@ const formattedDate =
 
   .date {
     margin: 0;
-    color: #777d89;
+    color: vvar(--color-muted);
     font-size: 14px;
   }
 
@@ -142,17 +140,17 @@ const formattedDate =
   }
 
   h2 a {
-    color: #16181d;
+    color: var(--color-text);
     text-decoration: none;
   }
 
   h2 a:hover {
-    color: #5145cd;
+    color: var(--color-accent);
   }
 
   .description {
     margin: 16px 0 0;
-    color: #676c78;
+    color: vvar(--color-muted);
     line-height: 1.75;
   }
 
@@ -168,8 +166,8 @@ const formattedDate =
   .tag-list li {
     padding: 6px 9px;
     border-radius: 8px;
-    background: #f0efff;
-    color: #5145cd;
+    background: var(--color-accent-soft);
+    color: var(--color-accent);
     font-size: 12px;
     font-weight: 800;
   }
@@ -180,7 +178,7 @@ const formattedDate =
     gap: 8px;
     margin-top: auto;
     padding-top: 28px;
-    color: #5145cd;
+    color: var(--color-accent);
     font-weight: 800;
     text-decoration: none;
   }

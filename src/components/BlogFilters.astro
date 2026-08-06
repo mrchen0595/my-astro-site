@@ -366,17 +366,17 @@ const {
   .blog-tools {
     margin-top: 52px;
     padding: 26px;
-    border: 1px solid #dfe2ea;
+    border: 1px solid var(--color-border);
     border-radius: 20px;
     background:
-      rgba(255, 255, 255, 0.75);
+      var(--color-surface);
   }
 
   .search-form label,
   .filter-title {
     display: block;
     margin: 0 0 10px;
-    color: #30343b;
+    color: var(--color-text-soft);
     font-weight: 800;
   }
 
@@ -392,18 +392,17 @@ const {
       88px
       0
       15px;
-    border: 1px solid #cfd3dd;
+    border: 1px solid var(--color-border);
     border-radius: 11px;
     outline: none;
-    background: white;
-    color: #16181d;
+    background: var(--color-surface);
+    color: var(--color-text);
   }
 
   .search-control input:focus {
-    border-color: #5145cd;
+    border-color: var(--color-accent);
     box-shadow:
-      0 0 0 4px
-      rgba(81, 69, 205, 0.12);
+      var(--focus-ring);
   }
 
   .clear-button {
@@ -414,8 +413,8 @@ const {
     padding: 0 11px;
     border: 0;
     border-radius: 8px;
-    background: #efeff5;
-    color: #555b67;
+    background: var(--color-subtle);
+    color: var(--color-text-soft);
     font-weight: 700;
     cursor: pointer;
     transform: translateY(-50%);
@@ -441,10 +440,10 @@ const {
     gap: 7px;
     min-height: 38px;
     padding: 0 13px;
-    border: 1px solid #d9dce5;
+    border: 1px solid var(--color-border);
     border-radius: 999px;
-    background: white;
-    color: #555b67;
+    background: var(--color-surface);
+    color: var(--color-text-soft);
     font-weight: 700;
     cursor: pointer;
   }
@@ -456,30 +455,30 @@ const {
     height: 22px;
     padding: 0 6px;
     border-radius: 999px;
-    background: #f0f1f5;
+    background: var(--color-subtle);
     font-size: 12px;
   }
 
   .tag-button:hover {
     border-color: #9188e8;
-    color: #5145cd;
+    color: var(--color-accent);
   }
 
   .tag-button.active {
-    border-color: #5145cd;
-    background: #5145cd;
-    color: white;
+    border-color: var(--color-accent);
+    background: var(--color-accent);
+    color: var(--color-on-accent);
   }
 
   .tag-button.active span {
     background:
       rgba(255, 255, 255, 0.2);
-    color: white;
+    color: var(--color-on-accent);
   }
 
   .result-count {
     margin: 22px 0 0;
-    color: #777d89;
+    color: vvar(--color-muted);
     font-size: 14px;
   }
 

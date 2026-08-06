@@ -1,4 +1,6 @@
 ---
+import "../styles/global.css";
+
 import type {
   ImageMetadata,
 } from "astro";
@@ -77,13 +79,57 @@ const updatedISO =
 <!doctype html>
 <html lang="zh-CN">
   <head>
+    <script is:inline>
+  (() => {
+    const storageKey = "william-site-theme";
+    const root = document.documentElement;
+
+    let preference = "system";
+
+    try {
+      const savedPreference =
+        localStorage.getItem(storageKey);
+
+      if (
+        savedPreference === "light" ||
+        savedPreference === "dark" ||
+        savedPreference === "system"
+      ) {
+        preference = savedPreference;
+      }
+    } catch {
+      // 某些隐私模式可能禁止访问存储。
+      // 此时直接使用系统主题。
+    }
+
+    const systemUsesDark =
+      window.matchMedia(
+        "(prefers-color-scheme: dark)"
+      ).matches;
+
+    const resolvedTheme =
+      preference === "system"
+        ? systemUsesDark
+          ? "dark"
+          : "light"
+        : preference;
+
+    root.dataset.theme = resolvedTheme;
+    root.dataset.themePreference =
+      preference;
+  })();
+</script>
+
     <meta charset="UTF-8" />
 
     <meta
       name="viewport"
       content="width=device-width, initial-scale=1"
     />
-
+     <meta
+      name="color-scheme"
+      content="light dark"
+    /> 
     <title>{title}</title>
 
     <meta
@@ -211,32 +257,6 @@ const updatedISO =
       )
     }
 
-    <style is:global>
-      * {
-        box-sizing: border-box;
-      }
-
-      html {
-        font-family:
-          Inter,
-          Arial,
-          "Microsoft YaHei",
-          sans-serif;
-
-        background: #eef2ff;
-        color: #16181d;
-      }
-
-      body {
-        margin: 0;
-      }
-
-      button,
-      input,
-      textarea {
-        font: inherit;
-      }
-    </style>
   </head>
 
   <body>

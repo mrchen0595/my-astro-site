@@ -52,10 +52,10 @@ const {
     flex-direction: column;
     min-height: 310px;
     padding: 28px;
-    border: 1px solid #dfe2ea;
+    border: 1px solid var(--color-border)olor-border)olor-border);
     border-radius: 20px;
-    background: white;
-    box-shadow: 0 14px 40px rgba(30, 35, 70, 0.06);
+    background: var(--color-surface);
+    box-shadow: var(--shadow-card);
     transition:
       transform 160ms ease,
       box-shadow 160ms ease;
@@ -63,7 +63,7 @@ const {
 
   .project-card:hover {
     transform: translateY(-4px);
-    box-shadow: 0 20px 50px rgba(30, 35, 70, 0.1);
+    box-shadow: var(--shadow-card-hover);
   }
 
   .card-header {
@@ -83,15 +83,15 @@ const {
     flex-shrink: 0;
     padding: 6px 10px;
     border-radius: 999px;
-    background: #eeecff;
-    color: #5145cd;
+    background: var(--color-accent-soft);
+    color: var(--color-accent)olor-accent)olor-accent)olor-accent);
     font-size: 12px;
     font-weight: 800;
   }
 
   .description {
     margin: 20px 0 0;
-    color: #676c78;
+    color: vvar(--color-muted);
     line-height: 1.75;
   }
 
@@ -107,8 +107,8 @@ const {
   .technology-list li {
     padding: 7px 10px;
     border-radius: 8px;
-    background: #f2f3f7;
-    color: #494e59;
+    background: var(--color-subtle);
+    color: var(--color-text-soft);
     font-size: 13px;
     font-weight: 700;
   }
@@ -124,7 +124,7 @@ const {
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    color: #5145cd;
+    color: var(--color-accent)olor-accent);
     text-decoration: none;
   }
 
@@ -133,6 +133,6 @@ const {
   }
 
   .unavailable {
-    color: #9297a3;
+    color: var(--color-disabled);
   }
 </style>
