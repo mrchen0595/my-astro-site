@@ -3,7 +3,11 @@ import { defineConfig } from 'astro/config';
 
 import vercel from '@astrojs/vercel';
 
+import sitemap from '@astrojs/sitemap';
+
 // https://astro.build/config
 export default defineConfig({
-  adapter: vercel()
+  site: "https://my-astro-site-rose.vercel.app",
+  adapter: vercel(),
+  integrations: [sitemap()]
 });

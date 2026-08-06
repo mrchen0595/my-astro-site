@@ -43,6 +43,13 @@ const posts = (
         这里记录我的前端开发学习过程、
         技术实践和项目总结。
       </p>
+      <a
+        class="rss-link"
+        href="/rss.xml"
+      >
+        订阅博客 RSS
+        <span aria-hidden="true">→</span>
+      </a>
     </section>
 
     {
@@ -67,6 +74,20 @@ const posts = (
 </BaseLayout>
 
 <style>
+.rss-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 22px;
+  color: #5145cd;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.rss-link:hover {
+  text-decoration: underline;
+}
+
   .blog-page {
     width: min(
       1000px,
