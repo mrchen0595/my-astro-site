@@ -1,0 +1,209 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Header from "../components/Header.astro";
+
+const features = [
+  {
+    title: "Astro 页面",
+    description: "使用 .astro 文件创建网页。",
+  },
+  {
+    title: "响应式设计",
+    description: "页面可以适应电脑和手机屏幕。",
+  },
+  {
+    title: "交互功能",
+    description: "可以使用 JavaScript 添加按钮交互。",
+  },
+];
+---
+
+<BaseLayout
+  title="我的 Astro 网站"
+  description="我的第一个本地 Astro 网站"
+>
+  <Header />
+
+  <main>
+    <section class="hero">
+      <p class="label">
+        MY FIRST ASTRO PROJECT
+      </p>
+
+      <h1>
+        从零开始，
+        <span>建立我的网站。</span>
+      </h1>
+
+      <p class="description">
+        这是我在本地电脑上运行的第一个 Astro 网站。
+        接下来我会逐步加入页面、组件和更多交互功能。
+      </p>
+
+      <div class="actions">
+        <a class="primary-button" href="/about">
+          查看关于页面
+        </a>
+
+        <button id="demo-button" type="button">
+          测试 JavaScript
+        </button>
+      </div>
+
+      <p id="message" aria-live="polite"></p>
+    </section>
+
+    <section class="feature-grid">
+      {
+        features.map((feature) => (
+          <article class="feature-card">
+            <h2>{feature.title}</h2>
+            <p>{feature.description}</p>
+          </article>
+        ))
+      }
+    </section>
+  </main>
+
+  <script>
+    const button =
+      document.querySelector<HTMLButtonElement>(
+        "#demo-button"
+      );
+
+    const message =
+      document.querySelector<HTMLParagraphElement>(
+        "#message"
+      );
+
+    button?.addEventListener("click", () => {
+      if (message) {
+        message.textContent =
+          "运行成功：浏览器端 JavaScript 正常工作。";
+      }
+    });
+  </script>
+</BaseLayout>
+
+<style>
+  main {
+    width: min(1100px, calc(100% - 40px));
+    margin: 0 auto;
+    padding: 80px 0;
+  }
+
+  .hero {
+    max-width: 850px;
+  }
+
+  .label {
+    margin: 0 0 18px;
+    color: #5145cd;
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: 0.18em;
+  }
+
+  h1 {
+    margin: 0;
+    font-size: clamp(44px, 8vw, 82px);
+    line-height: 1.05;
+    letter-spacing: -0.055em;
+  }
+
+  h1 span {
+    color: #5145cd;
+  }
+
+  .description {
+    max-width: 700px;
+    margin: 28px 0 0;
+    color: #676c78;
+    font-size: 20px;
+    line-height: 1.8;
+  }
+
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 34px;
+  }
+
+  .primary-button,
+  button {
+    min-height: 48px;
+    padding: 0 20px;
+    border-radius: 11px;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform 150ms ease;
+  }
+
+  .primary-button {
+    display: inline-flex;
+    align-items: center;
+    background: #5145cd;
+    color: white;
+    text-decoration: none;
+  }
+
+  button {
+    border: 1px solid #d6d8df;
+    background: white;
+    color: #16181d;
+  }
+
+  .primary-button:hover,
+  button:hover {
+    transform: translateY(-2px);
+  }
+
+  #message {
+    min-height: 25px;
+    margin-top: 18px;
+    color: #15803d;
+    font-weight: 700;
+  }
+
+  .feature-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px;
+    margin-top: 90px;
+  }
+
+  .feature-card {
+    padding: 26px;
+    border: 1px solid #e2e4ea;
+    border-radius: 18px;
+    background: white;
+  }
+
+  .feature-card h2 {
+    margin: 0 0 10px;
+    font-size: 20px;
+  }
+
+  .feature-card p {
+    margin: 0;
+    color: #676c78;
+    line-height: 1.7;
+  }
+
+  @media (max-width: 760px) {
+    main {
+      padding-top: 50px;
+    }
+
+    h1 {
+      font-size: 48px;
+    }
+
+    .feature-grid {
+      grid-template-columns: 1fr;
+      margin-top: 60px;
+    }
+  }
+</style>

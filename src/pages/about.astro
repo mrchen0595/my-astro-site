@@ -1,0 +1,122 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Header from "../components/Header.astro";
+
+const skills = [
+  "HTML 页面结构",
+  "CSS 页面样式",
+  "JavaScript 交互",
+  "Astro 文件路由",
+  "Astro 公共组件",
+  "Astro 页面布局",
+];
+---
+
+<BaseLayout
+  title="关于 | My Astro Site"
+  description="关于我的第一个 Astro 学习项目"
+>
+  <Header />
+
+  <main>
+    <p class="label">
+      ABOUT THIS PROJECT
+    </p>
+
+    <h1>关于这个网站</h1>
+
+    <p class="description">
+      这是我的第一个本地 Astro 项目。
+      当前网站已经包含页面路由、公共组件、公共布局、
+      基础样式和 JavaScript 交互。
+    </p>
+
+    <section>
+      <h2>目前已经学习的内容</h2>
+
+      <ul>
+        {
+          skills.map((skill) => (
+            <li>{skill}</li>
+          ))
+        }
+      </ul>
+    </section>
+
+    <a class="back-link" href="/">
+      ← 返回首页
+    </a>
+  </main>
+</BaseLayout>
+
+<style>
+  main {
+    width: min(760px, calc(100% - 40px));
+    margin: 0 auto;
+    padding: 90px 0;
+  }
+
+  .label {
+    margin: 0;
+    color: #5145cd;
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: 0.18em;
+  }
+
+  h1 {
+    margin: 14px 0 24px;
+    font-size: clamp(44px, 7vw, 72px);
+    letter-spacing: -0.05em;
+  }
+
+  .description {
+    color: #676c78;
+    font-size: 20px;
+    line-height: 1.8;
+  }
+
+  section {
+    margin-top: 50px;
+    padding: 30px;
+    border: 1px solid #e2e4ea;
+    border-radius: 18px;
+    background: white;
+  }
+
+  section h2 {
+    margin-top: 0;
+  }
+
+  ul {
+    margin-bottom: 0;
+    padding-left: 24px;
+  }
+
+  li {
+    margin: 12px 0;
+    line-height: 1.6;
+  }
+
+  .back-link {
+    display: inline-block;
+    margin-top: 32px;
+    color: #5145cd;
+    font-weight: 700;
+    text-decoration: none;
+  }
+
+  .back-link:hover {
+    text-decoration: underline;
+  }
+
+  @media (max-width: 600px) {
+    main {
+      padding-top: 50px;
+    }
+
+    section {
+      padding: 22px;
+    }
+  }
+</style>

@@ -1,0 +1,101 @@
+---
+const currentPath =
+  Astro.url.pathname.replace(/\/$/, "") || "/";
+
+const links = [
+  {
+    href: "/",
+    label: "首页",
+  },
+  {
+    href: "/about",
+    label: "关于",
+  },
+];
+---
+
+<header class="site-header">
+  <a class="logo" href="/">
+    William的网站
+  </a>
+
+  <nav aria-label="主导航">
+    {
+      links.map((link) => {
+        const isActive = currentPath === link.href;
+
+        return (
+          <a
+            href={link.href}
+            class:list={[
+              "nav-link",
+              { active: isActive },
+            ]}
+            aria-current={isActive ? "page" : undefined}
+          >
+            {link.label}
+          </a>
+        );
+      })
+    }
+  </nav>
+</header>
+
+<style>
+  .site-header {
+    width: min(1100px, calc(100% - 40px));
+    min-height: 72px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .logo {
+    color: #16181d;
+    font-size: 20px;
+    font-weight: 800;
+    text-decoration: none;
+  }
+
+  nav {
+    display: flex;
+    gap: 8px;
+  }
+
+  .nav-link {
+    padding: 9px 14px;
+    border-radius: 9px;
+    color: #676c78;
+    text-decoration: none;
+    transition:
+      background 150ms ease,
+      color 150ms ease,
+      transform 150ms ease;
+  }
+
+  .nav-link:hover {
+    background: #e8e7ff;
+    color: #5145cd;
+    transform: translateY(-1px);
+  }
+
+  .nav-link.active {
+    background: #5145cd;
+    color: white;
+  }
+
+  @media (max-width: 520px) {
+    .site-header {
+      width: min(100% - 24px, 1100px);
+    }
+
+    .logo {
+      font-size: 17px;
+    }
+
+    .nav-link {
+      padding: 8px 11px;
+    }
+  }
+</style>
