@@ -38,3 +38,4 @@ Astro 最明显的特点是，它允许我直接编写接近 HTML 的页面，�
   description="我的第一个 Astro 项目"
   technologies={["Astro", "CSS", "JavaScript"]}
 />
+```

@@ -35,3 +35,4 @@ coverAlt: "表现网页模块与组件结构的文章封面"
 
 ```astro
 <Header />
+```

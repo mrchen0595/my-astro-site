@@ -19,33 +19,25 @@ const skills = [
   <Header />
 
   <main>
-    <p class="label">
-      ABOUT THIS PROJECT
-    </p>
+    <p class="label">ABOUT THIS PROJECT</p>
 
     <h1>关于这个网站</h1>
 
     <p class="description">
       这是我的第一个本地 Astro 项目。
-      当前网站已经包含页面路由、公共组件、公共布局、
-      基础样式和 JavaScript 交互。
+      当前网站已经包含页面路由、公共组件、公共布局、 基础样式和 JavaScript
+      交互。
     </p>
 
     <section>
       <h2>目前已经学习的内容</h2>
 
       <ul>
-        {
-          skills.map((skill) => (
-            <li>{skill}</li>
-          ))
-        }
+        {skills.map((skill) => <li>{skill}</li>)}
       </ul>
     </section>
 
-    <a class="back-link" href="/">
-      ← 返回首页
-    </a>
+    <a class="back-link" href="/"> ← 返回首页 </a>
   </main>
 </BaseLayout>
 

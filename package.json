@@ -9,7 +9,12 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
+    "check": "astro check --minimumFailingSeverity warning",
+    "check:watch": "astro check --watch",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "quality": "npm run check && npm run format:check && npm run build"
   },
   "dependencies": {
     "@astrojs/rss": "^4.0.19",
@@ -17,5 +22,11 @@
     "@astrojs/vercel": "^11.0.4",
     "astro": "^7.1.6",
     "resend": "^6.18.1"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.10",
+    "prettier": "3.9.6",
+    "prettier-plugin-astro": "^0.14.1",
+    "typescript": "^6.0.3"
   }
 }
