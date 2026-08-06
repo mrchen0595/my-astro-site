@@ -95,13 +95,26 @@
       aria-live="polite"
     ></p>
   </div>
+    <div class="website-field" aria-hidden="true">
+    <label for="contact-website">
+        网站
+    </label>
 
+    <input
+        id="contact-website"
+        name="website"
+        type="text"
+        tabindex="-1"
+        autocomplete="off"
+    />
+    </div>
   <button id="submit-button" type="submit">
     提交表单
   </button>
 
   <p class="demo-note">
-    当前为前端演示，填写内容不会被发送或保存。
+    提交后，留言将通过服务端接口发送到我的邮箱。
+    请不要填写密码、银行卡等敏感信息。
   </p>
 
   <p
@@ -296,94 +309,137 @@
       }
     );
 
-    form.addEventListener(
-      "submit",
-      async (event) => {
-        event.preventDefault();
+form.addEventListener(
+  "submit",
+  async (event) => {
+    event.preventDefault();
 
-        const results =
-          fields.map(validateField);
+    if (submitButton?.disabled) {
+      return;
+    }
 
-        const allValid =
-          results.every(Boolean);
+    const results =
+      fields.map(validateField);
 
-        if (!allValid) {
-          const firstInvalid =
-            fields.find(
-              (field) =>
-                field.getAttribute(
-                  "aria-invalid"
-                ) === "true"
-            );
+    const allValid =
+      results.every(Boolean);
 
-          firstInvalid?.focus();
-
-          if (formStatus) {
-            formStatus.className =
-              "form-status error";
-
-            formStatus.textContent =
-              "表单中还有错误，请检查后重新提交。";
-          }
-
-          return;
-        }
-
-        const formData =
-          new FormData(form);
-
-        const name = String(
-          formData.get("name") ?? ""
-        ).trim();
-
-        if (submitButton) {
-          submitButton.disabled = true;
-          submitButton.textContent =
-            "正在验证…";
-        }
-
-        if (formStatus) {
-          formStatus.className =
-            "form-status";
-
-          formStatus.textContent =
-            "正在处理表单内容…";
-        }
-
-        await new Promise((resolve) => {
-          window.setTimeout(resolve, 800);
-        });
-
-        console.log(
-          "表单演示数据：",
-          Object.fromEntries(
-            formData.entries()
-          )
+    if (!allValid) {
+      const firstInvalid =
+        fields.find(
+          (field) =>
+            field.getAttribute(
+              "aria-invalid"
+            ) === "true"
         );
 
-        form.reset();
+      firstInvalid?.focus();
 
-        fields.forEach(clearFieldState);
+      if (formStatus) {
+        formStatus.className =
+          "form-status error";
 
-        if (messageCount) {
-          messageCount.textContent = "0";
-        }
-
-        if (submitButton) {
-          submitButton.disabled = false;
-          submitButton.textContent =
-            "提交表单";
-        }
-
-        if (formStatus) {
-          formStatus.className =
-            "form-status success";
-
-          formStatus.textContent =
-            `验证通过，${name}。这是前端演示，数据尚未发送。`;
-        }
+        formStatus.textContent =
+          "表单中还有错误，请检查后重新提交。";
       }
-    );
+
+      return;
+    }
+
+    const formData =
+      new FormData(form);
+
+    const payload =
+      Object.fromEntries(
+        formData.entries()
+      );
+
+    if (submitButton) {
+      submitButton.disabled = true;
+      submitButton.textContent =
+        "正在发送…";
+    }
+
+    if (formStatus) {
+      formStatus.className =
+        "form-status";
+
+      formStatus.textContent =
+        "正在连接邮件服务器…";
+    }
+
+    try {
+      const response = await fetch(
+        "/api/contact",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type":
+              "application/json",
+          },
+          body: JSON.stringify(payload),
+        }
+      );
+
+      const result = await response
+        .json()
+        .catch(() => null) as
+          | {
+              ok?: boolean;
+              message?: string;
+            }
+          | null;
+
+      if (
+        !response.ok ||
+        !result?.ok
+      ) {
+        throw new Error(
+          result?.message ??
+            "发送失败，请稍后重试。"
+        );
+      }
+
+      form.reset();
+
+      fields.forEach(
+        clearFieldState
+      );
+
+      if (messageCount) {
+        messageCount.textContent = "0";
+      }
+
+      if (formStatus) {
+        formStatus.className =
+          "form-status success";
+
+        formStatus.textContent =
+          result.message ??
+          "留言发送成功。";
+      }
+    } catch (error) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : "发送失败，请稍后重试。";
+
+      if (formStatus) {
+        formStatus.className =
+          "form-status error";
+
+        formStatus.textContent =
+          message;
+      }
+    } finally {
+      if (submitButton) {
+        submitButton.disabled = false;
+        submitButton.textContent =
+          "提交表单";
+      }
+    }
+  }
+);
   }
 </script>
 
@@ -398,6 +454,13 @@
       rgba(30, 35, 70, 0.07);
   }
 
+  .website-field {
+  position: absolute;
+  left: -10000px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+    } 
   .field + .field {
     margin-top: 22px;
   }

@@ -1,0 +1,146 @@
+---
+import type {
+  CollectionEntry,
+} from "astro:content";
+
+interface Props {
+  post: CollectionEntry<"blog">;
+}
+
+const { post } = Astro.props;
+
+const formattedDate =
+  new Intl.DateTimeFormat(
+    "zh-CN",
+    {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    }
+  ).format(post.data.pubDate);
+---
+
+<article class="blog-card">
+  <p class="date">
+    {formattedDate}
+  </p>
+
+  <h2>
+    <a href={`/blog/${post.id}`}>
+      {post.data.title}
+    </a>
+  </h2>
+
+  <p class="description">
+    {post.data.description}
+  </p>
+
+  {
+    post.data.tags.length > 0 && (
+      <ul
+        class="tag-list"
+        aria-label="文章标签"
+      >
+        {
+          post.data.tags.map(
+            (tag) => (
+              <li>{tag}</li>
+            )
+          )
+        }
+      </ul>
+    )
+  }
+
+  <a
+    class="read-link"
+    href={`/blog/${post.id}`}
+  >
+    阅读文章
+    <span aria-hidden="true">→</span>
+  </a>
+</article>
+
+<style>
+  .blog-card {
+    display: flex;
+    flex-direction: column;
+    padding: 28px;
+    border: 1px solid #dfe2ea;
+    border-radius: 20px;
+    background: white;
+    box-shadow:
+      0 14px 40px
+      rgba(30, 35, 70, 0.05);
+    transition:
+      transform 160ms ease,
+      box-shadow 160ms ease;
+  }
+
+  .blog-card:hover {
+    transform: translateY(-4px);
+    box-shadow:
+      0 20px 50px
+      rgba(30, 35, 70, 0.1);
+  }
+
+  .date {
+    margin: 0;
+    color: #777d89;
+    font-size: 14px;
+  }
+
+  h2 {
+    margin: 14px 0 0;
+    font-size: 25px;
+    line-height: 1.4;
+  }
+
+  h2 a {
+    color: #16181d;
+    text-decoration: none;
+  }
+
+  h2 a:hover {
+    color: #5145cd;
+  }
+
+  .description {
+    margin: 16px 0 0;
+    color: #676c78;
+    line-height: 1.75;
+  }
+
+  .tag-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 22px 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .tag-list li {
+    padding: 6px 9px;
+    border-radius: 8px;
+    background: #f0efff;
+    color: #5145cd;
+    font-size: 12px;
+    font-weight: 800;
+  }
+
+  .read-link {
+    display: inline-flex;
+    gap: 8px;
+    align-items: center;
+    margin-top: auto;
+    padding-top: 28px;
+    color: #5145cd;
+    font-weight: 800;
+    text-decoration: none;
+  }
+
+  .read-link:hover {
+    text-decoration: underline;
+  }
+</style>

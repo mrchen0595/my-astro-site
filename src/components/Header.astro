@@ -1,4 +1,18 @@
 ---
+function isLinkActive(
+  href: string
+): boolean {
+  if (href === "/") {
+    return currentPath === "/";
+  }
+
+  return (
+    currentPath === href ||
+    currentPath.startsWith(
+      `${href}/`
+    )
+  );
+}
 const currentPath =
   Astro.url.pathname.replace(/\/$/, "") || "/";
 
@@ -10,6 +24,10 @@ const links = [
   {
     href: "/projects",
     label: "项目",
+  },
+  {
+    href: "/blog",
+    label: "博客",
   },
   {
     href: "/contact",
@@ -30,7 +48,7 @@ const links = [
   <nav aria-label="主导航">
     {
       links.map((link) => {
-        const isActive = currentPath === link.href;
+        const isActive = isLinkActive(link.href);
 
         return (
           <a
