@@ -12,6 +12,9 @@ import Header from
 import BlogCard from
   "../../components/BlogCard.astro";
 
+import BlogFilters from
+  "../../components/BlogFilters.astro";
+
 const posts = (
   await getCollection(
     "blog",
@@ -22,6 +25,31 @@ const posts = (
   (a, b) =>
     b.data.pubDate.valueOf() -
     a.data.pubDate.valueOf()
+);
+
+const tagCountMap =
+  new Map<string, number>();
+
+posts.forEach((post) => {
+  post.data.tags.forEach((tag) => {
+    tagCountMap.set(
+      tag,
+      (tagCountMap.get(tag) ?? 0) + 1
+    );
+  });
+});
+
+const tags = Array.from(
+  tagCountMap,
+  ([name, count]) => ({
+    name,
+    count,
+  })
+).sort((a, b) =>
+  a.name.localeCompare(
+    b.name,
+    "zh-CN"
+  )
 );
 ---
 
@@ -43,6 +71,7 @@ const posts = (
         这里记录我的前端开发学习过程、
         技术实践和项目总结。
       </p>
+
       <a
         class="rss-link"
         href="/rss.xml"
@@ -54,16 +83,53 @@ const posts = (
 
     {
       posts.length > 0 ? (
-        <section
-          class="blog-grid"
-          aria-label="博客文章列表"
-        >
-          {
-            posts.map((post) => (
-              <BlogCard post={post} />
-            ))
-          }
-        </section>
+        <>
+          <BlogFilters
+            tags={tags}
+            total={posts.length}
+          />
+
+          <section
+            id="blog-results"
+            class="blog-grid"
+            aria-label="博客文章列表"
+          >
+            {
+              posts.map((post) => (
+                <div
+                  class="post-item"
+                  data-blog-item
+                  data-title={
+                    post.data.title
+                  }
+                  data-description={
+                    post.data.description
+                  }
+                  data-tags={
+                    JSON.stringify(
+                      post.data.tags
+                    )
+                  }
+                >
+                  <BlogCard post={post} />
+                </div>
+              ))
+            }
+          </section>
+
+          <section
+            id="blog-empty-message"
+            class="empty-state"
+            hidden
+          >
+            <h2>没有找到相关文章</h2>
+
+            <p>
+              尝试更换关键词，
+              或选择其他标签。
+            </p>
+          </section>
+        </>
       ) : (
         <p class="empty-message">
           目前还没有已发布的文章。
@@ -74,23 +140,9 @@ const posts = (
 </BaseLayout>
 
 <style>
-.rss-link {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  margin-top: 22px;
-  color: #5145cd;
-  font-weight: 800;
-  text-decoration: none;
-}
-
-.rss-link:hover {
-  text-decoration: underline;
-}
-
   .blog-page {
     width: min(
-      1000px,
+      1100px,
       calc(100% - 40px)
     );
     margin: 0 auto;
@@ -127,12 +179,53 @@ const posts = (
     line-height: 1.8;
   }
 
+  .rss-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 22px;
+    color: #5145cd;
+    font-weight: 800;
+    text-decoration: none;
+  }
+
+  .rss-link:hover {
+    text-decoration: underline;
+  }
+
   .blog-grid {
     display: grid;
     grid-template-columns:
       repeat(2, minmax(0, 1fr));
-    gap: 20px;
-    margin-top: 64px;
+    gap: 24px;
+    margin-top: 34px;
+  }
+
+  .post-item {
+    min-width: 0;
+    height: 100%;
+  }
+
+  .post-item[hidden] {
+    display: none;
+  }
+
+  .empty-state {
+    margin-top: 34px;
+    padding: 48px 24px;
+    border: 1px dashed #cfd3dd;
+    border-radius: 20px;
+    text-align: center;
+  }
+
+  .empty-state h2 {
+    margin: 0;
+    font-size: 25px;
+  }
+
+  .empty-state p {
+    margin: 12px 0 0;
+    color: #676c78;
   }
 
   .empty-message {
@@ -140,18 +233,17 @@ const posts = (
     color: #676c78;
   }
 
-  @media (max-width: 700px) {
+  @media (max-width: 760px) {
     .blog-page {
       width: min(
         100% - 24px,
-        1000px
+        1100px
       );
       padding-top: 50px;
     }
 
     .blog-grid {
       grid-template-columns: 1fr;
-      margin-top: 44px;
     }
   }
 </style>
