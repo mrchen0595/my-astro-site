@@ -9,24 +9,12 @@ interface Props {
   total: number;
 }
 
-const {
-  tags,
-  total,
-} = Astro.props;
+const { tags, total } = Astro.props;
 ---
 
-<section
-  class="blog-tools"
-  data-blog-filter
-  aria-label="博客搜索和筛选"
->
-  <form
-    class="search-form"
-    role="search"
-  >
-    <label for="blog-search">
-      搜索文章
-    </label>
+<section class="blog-tools" data-blog-filter aria-label="博客搜索和筛选">
+  <form class="search-form" role="search">
+    <label for="blog-search"> 搜索文章 </label>
 
     <div class="search-control">
       <input
@@ -37,27 +25,16 @@ const {
         autocomplete="off"
       />
 
-      <button
-        id="clear-search"
-        class="clear-button"
-        type="button"
-        hidden
-      >
+      <button id="clear-search" class="clear-button" type="button" hidden>
         清空
       </button>
     </div>
   </form>
 
   <div class="tag-filter">
-    <p class="filter-title">
-      按标签筛选
-    </p>
+    <p class="filter-title">按标签筛选</p>
 
-    <div
-      class="tag-buttons"
-      role="group"
-      aria-label="文章标签"
-    >
+    <div class="tag-buttons" role="group" aria-label="文章标签">
       <button
         class="tag-button active"
         type="button"
@@ -84,77 +61,48 @@ const {
     </div>
   </div>
 
-  <p
-    id="blog-result-count"
-    class="result-count"
-    aria-live="polite"
-  >
+  <p id="blog-result-count" class="result-count" aria-live="polite">
     显示 {total} 篇文章
   </p>
 </section>
 
 <script>
-  const filterRoot =
-    document.querySelector<HTMLElement>(
-      "[data-blog-filter]"
-    );
+  const filterRoot = document.querySelector<HTMLElement>("[data-blog-filter]");
 
   if (filterRoot) {
     const searchInput =
-      filterRoot.querySelector<HTMLInputElement>(
-        "#blog-search"
-      );
+      filterRoot.querySelector<HTMLInputElement>("#blog-search");
 
     const clearButton =
-      filterRoot.querySelector<HTMLButtonElement>(
-        "#clear-search"
-      );
+      filterRoot.querySelector<HTMLButtonElement>("#clear-search");
 
     const resultCount =
-      filterRoot.querySelector<HTMLElement>(
-        "#blog-result-count"
-      );
+      filterRoot.querySelector<HTMLElement>("#blog-result-count");
 
     const tagButtons = Array.from(
-      filterRoot.querySelectorAll<HTMLButtonElement>(
-        "[data-tag]"
-      )
+      filterRoot.querySelectorAll<HTMLButtonElement>("[data-tag]"),
     );
 
     const postItems = Array.from(
-      document.querySelectorAll<HTMLElement>(
-        "[data-blog-item]"
-      )
+      document.querySelectorAll<HTMLElement>("[data-blog-item]"),
     );
 
-    const emptyMessage =
-      document.querySelector<HTMLElement>(
-        "#blog-empty-message"
-      );
+    const emptyMessage = document.querySelector<HTMLElement>(
+      "#blog-empty-message",
+    );
 
     let activeTag = "";
 
-    function normalize(
-      value: string
-    ): string {
-      return value
-        .trim()
-        .toLocaleLowerCase("zh-CN");
+    function normalize(value: string): string {
+      return value.trim().toLocaleLowerCase("zh-CN");
     }
 
-    function readTags(
-      item: HTMLElement
-    ): string[] {
+    function readTags(item: HTMLElement): string[] {
       try {
-        const value = JSON.parse(
-          item.dataset.tags ?? "[]"
-        );
+        const value = JSON.parse(item.dataset.tags ?? "[]");
 
         return Array.isArray(value)
-          ? value.filter(
-              (tag): tag is string =>
-                typeof tag === "string"
-            )
+          ? value.filter((tag): tag is string => typeof tag === "string")
           : [];
       } catch {
         return [];
@@ -162,27 +110,18 @@ const {
     }
 
     function updateURL(): void {
-      const url = new URL(
-        window.location.href
-      );
+      const url = new URL(window.location.href);
 
-      const query =
-        searchInput?.value.trim() ?? "";
+      const query = searchInput?.value.trim() ?? "";
 
       if (query) {
-        url.searchParams.set(
-          "q",
-          query
-        );
+        url.searchParams.set("q", query);
       } else {
         url.searchParams.delete("q");
       }
 
       if (activeTag) {
-        url.searchParams.set(
-          "tag",
-          activeTag
-        );
+        url.searchParams.set("tag", activeTag);
       } else {
         url.searchParams.delete("tag");
       }
@@ -190,67 +129,43 @@ const {
       window.history.replaceState(
         {},
         "",
-        `${url.pathname}${url.search}${url.hash}`
+        `${url.pathname}${url.search}${url.hash}`,
       );
     }
 
     function updateTagButtons(): void {
       tagButtons.forEach((button) => {
-        const isActive =
-          (button.dataset.tag ?? "") ===
-          activeTag;
+        const isActive = (button.dataset.tag ?? "") === activeTag;
 
-        button.classList.toggle(
-          "active",
-          isActive
-        );
+        button.classList.toggle("active", isActive);
 
-        button.setAttribute(
-          "aria-pressed",
-          String(isActive)
-        );
+        button.setAttribute("aria-pressed", String(isActive));
       });
     }
 
-    function applyFilters(
-      updateAddress = true
-    ): void {
-      const query = normalize(
-        searchInput?.value ?? ""
-      );
+    function applyFilters(updateAddress = true): void {
+      const query = normalize(searchInput?.value ?? "");
 
       let visibleCount = 0;
 
       postItems.forEach((item) => {
-        const title = normalize(
-          item.dataset.title ?? ""
-        );
+        const title = normalize(item.dataset.title ?? "");
 
-        const description = normalize(
-          item.dataset.description ?? ""
-        );
+        const description = normalize(item.dataset.description ?? "");
 
         const tags = readTags(item);
 
-        const searchableTags =
-          tags.map(normalize);
+        const searchableTags = tags.map(normalize);
 
-        const searchableText = [
-          title,
-          description,
-          ...searchableTags,
-        ].join(" ");
+        const searchableText = [title, description, ...searchableTags].join(
+          " ",
+        );
 
-        const matchesQuery =
-          !query ||
-          searchableText.includes(query);
+        const matchesQuery = !query || searchableText.includes(query);
 
-        const matchesTag =
-          !activeTag ||
-          tags.includes(activeTag);
+        const matchesTag = !activeTag || tags.includes(activeTag);
 
-        const isVisible =
-          matchesQuery && matchesTag;
+        const isVisible = matchesQuery && matchesTag;
 
         item.hidden = !isVisible;
 
@@ -260,18 +175,15 @@ const {
       });
 
       if (resultCount) {
-        resultCount.textContent =
-          `显示 ${visibleCount} 篇文章`;
+        resultCount.textContent = `显示 ${visibleCount} 篇文章`;
       }
 
       if (emptyMessage) {
-        emptyMessage.hidden =
-          visibleCount !== 0;
+        emptyMessage.hidden = visibleCount !== 0;
       }
 
       if (clearButton) {
-        clearButton.hidden =
-          !searchInput?.value;
+        clearButton.hidden = !searchInput?.value;
       }
 
       if (updateAddress) {
@@ -279,83 +191,52 @@ const {
       }
     }
 
-    function setActiveTag(
-      tag: string,
-      updateAddress = true
-    ): void {
+    function setActiveTag(tag: string, updateAddress = true): void {
       activeTag = tag;
       updateTagButtons();
       applyFilters(updateAddress);
     }
 
-    searchInput?.addEventListener(
-      "input",
-      () => {
-        applyFilters();
-      }
-    );
-
-    filterRoot
-      .querySelector("form")
-      ?.addEventListener(
-        "submit",
-        (event) => {
-          event.preventDefault();
-          applyFilters();
-        }
-      );
-
-    clearButton?.addEventListener(
-      "click",
-      () => {
-        if (!searchInput) {
-          return;
-        }
-
-        searchInput.value = "";
-        searchInput.focus();
-        applyFilters();
-      }
-    );
-
-    tagButtons.forEach((button) => {
-      button.addEventListener(
-        "click",
-        () => {
-          setActiveTag(
-            button.dataset.tag ?? ""
-          );
-        }
-      );
+    searchInput?.addEventListener("input", () => {
+      applyFilters();
     });
 
-    const initialParams =
-      new URLSearchParams(
-        window.location.search
-      );
+    filterRoot.querySelector("form")?.addEventListener("submit", (event) => {
+      event.preventDefault();
+      applyFilters();
+    });
 
-    const initialQuery =
-      initialParams.get("q") ?? "";
+    clearButton?.addEventListener("click", () => {
+      if (!searchInput) {
+        return;
+      }
 
-    const requestedTag =
-      initialParams.get("tag") ?? "";
+      searchInput.value = "";
+      searchInput.focus();
+      applyFilters();
+    });
+
+    tagButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        setActiveTag(button.dataset.tag ?? "");
+      });
+    });
+
+    const initialParams = new URLSearchParams(window.location.search);
+
+    const initialQuery = initialParams.get("q") ?? "";
+
+    const requestedTag = initialParams.get("tag") ?? "";
 
     if (searchInput) {
-      searchInput.value =
-        initialQuery;
+      searchInput.value = initialQuery;
     }
 
-    const tagExists =
-      tagButtons.some(
-        (button) =>
-          button.dataset.tag ===
-          requestedTag
-      );
+    const tagExists = tagButtons.some(
+      (button) => button.dataset.tag === requestedTag,
+    );
 
-    activeTag =
-      tagExists
-        ? requestedTag
-        : "";
+    activeTag = tagExists ? requestedTag : "";
 
     updateTagButtons();
     applyFilters(false);
@@ -368,8 +249,7 @@ const {
     padding: 26px;
     border: 1px solid var(--color-border);
     border-radius: 20px;
-    background:
-      var(--color-surface);
+    background: var(--color-surface);
   }
 
   .search-form label,
@@ -387,11 +267,7 @@ const {
   .search-control input {
     width: 100%;
     min-height: 50px;
-    padding:
-      0
-      88px
-      0
-      15px;
+    padding: 0 88px 0 15px;
     border: 1px solid var(--color-border);
     border-radius: 11px;
     outline: none;
@@ -401,8 +277,7 @@ const {
 
   .search-control input:focus {
     border-color: var(--color-accent);
-    box-shadow:
-      var(--focus-ring);
+    box-shadow: var(--focus-ring);
   }
 
   .clear-button {
@@ -471,8 +346,7 @@ const {
   }
 
   .tag-button.active span {
-    background:
-      rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.2);
     color: var(--color-on-accent);
   }
 

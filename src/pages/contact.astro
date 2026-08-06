@@ -1,12 +1,9 @@
 ---
-import BaseLayout from
-  "../layouts/BaseLayout.astro";
+import BaseLayout from "../layouts/BaseLayout.astro";
 
-import Header from
-  "../components/Header.astro";
+import Header from "../components/Header.astro";
 
-import ContactForm from
-  "../components/ContactForm.astro";
+import ContactForm from "../components/ContactForm.astro";
 ---
 
 <BaseLayout
@@ -30,22 +27,15 @@ import ContactForm from
     <section class="contact-layout">
       <aside class="information">
         <div class="info-card">
-          <p class="info-label">
-            当前状态
-          </p>
+          <p class="info-label">当前状态</p>
 
           <h2>正在学习前端开发</h2>
 
-          <p>
-            当前网站使用 Astro、HTML、
-            CSS 和原生 JavaScript 构建。
-          </p>
+          <p>当前网站使用 Astro、HTML、 CSS 和原生 JavaScript 构建。</p>
         </div>
 
         <div class="info-card">
-          <p class="info-label">
-            本页练习目标
-          </p>
+          <p class="info-label">本页练习目标</p>
 
           <ul>
             <li>HTML 表单控件</li>
@@ -63,10 +53,7 @@ import ContactForm from
 
 <style>
   main {
-    width: min(
-      1100px,
-      calc(100% - 40px)
-    );
+    width: min(1100px, calc(100% - 40px));
     margin: 0 auto;
     padding: 80px 0 100px;
   }
@@ -86,11 +73,7 @@ import ContactForm from
 
   h1 {
     margin: 14px 0 22px;
-    font-size: clamp(
-      48px,
-      8vw,
-      78px
-    );
+    font-size: clamp(48px, 8vw, 78px);
     line-height: 1.05;
     letter-spacing: -0.055em;
   }
@@ -121,8 +104,7 @@ import ContactForm from
     padding: 26px;
     border: 1px solid var(--color-border);
     border-radius: 18px;
-    background:
-      rvar(--color-surface);
+    background: rvar(--color-surface);
   }
 
   .info-card h2 {
@@ -154,10 +136,7 @@ import ContactForm from
 
   @media (max-width: 600px) {
     main {
-      width: min(
-        100% - 24px,
-        1100px
-      );
+      width: min(100% - 24px, 1100px);
       padding-top: 50px;
     }
 

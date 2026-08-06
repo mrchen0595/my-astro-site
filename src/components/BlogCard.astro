@@ -1,10 +1,7 @@
 ---
-import type {
-  CollectionEntry,
-} from "astro:content";
+import type { CollectionEntry } from "astro:content";
 
-import BlogCover from
-  "./BlogCover.astro";
+import BlogCover from "./BlogCover.astro";
 
 interface Props {
   post: CollectionEntry<"blog">;
@@ -12,15 +9,11 @@ interface Props {
 
 const { post } = Astro.props;
 
-const formattedDate =
-  new Intl.DateTimeFormat(
-    "zh-CN",
-    {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    }
-  ).format(post.data.pubDate);
+const formattedDate = new Intl.DateTimeFormat("zh-CN", {
+  year: "numeric",
+  month: "long",
+  day: "numeric",
+}).format(post.data.pubDate);
 ---
 
 <article class="blog-card">
@@ -29,11 +22,7 @@ const formattedDate =
     href={`/blog/${post.id}`}
     aria-label={`阅读：${post.data.title}`}
   >
-    <BlogCover
-      src={post.data.cover}
-      alt={post.data.coverAlt}
-      variant="card"
-    />
+    <BlogCover src={post.data.cover} alt={post.data.coverAlt} variant="card" />
   </a>
 
   <div class="card-body">
@@ -53,25 +42,15 @@ const formattedDate =
 
     {
       post.data.tags.length > 0 && (
-        <ul
-          class="tag-list"
-          aria-label="文章标签"
-        >
-          {
-            post.data.tags.map(
-              (tag) => (
-                <li>{tag}</li>
-              )
-            )
-          }
+        <ul class="tag-list" aria-label="文章标签">
+          {post.data.tags.map((tag) => (
+            <li>{tag}</li>
+          ))}
         </ul>
       )
     }
 
-    <a
-      class="read-link"
-      href={`/blog/${post.id}`}
-    >
+    <a class="read-link" href={`/blog/${post.id}`}>
       阅读文章
       <span aria-hidden="true">→</span>
     </a>
@@ -88,8 +67,7 @@ const formattedDate =
     border: 1px solid var(--color-border);
     border-radius: 20px;
     background: var(--color-surface);
-    box-shadow:
-      var(--shadow-card);
+    box-shadow: var(--shadow-card);
     transition:
       transform 160ms ease,
       box-shadow 160ms ease;
@@ -97,8 +75,7 @@ const formattedDate =
 
   .blog-card:hover {
     transform: translateY(-4px);
-    box-shadow:
-      var(--shadow-card-hover);
+    box-shadow: var(--shadow-card-hover);
   }
 
   .cover-link {
@@ -115,8 +92,7 @@ const formattedDate =
     transition: transform 220ms ease;
   }
 
-  .cover-link:hover
-  :global(.blog-cover.card) {
+  .cover-link:hover :global(.blog-cover.card) {
     transform: scale(1.025);
   }
 

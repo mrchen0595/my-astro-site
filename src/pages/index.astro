@@ -18,17 +18,12 @@ const features = [
 ];
 ---
 
-<BaseLayout
-  title="我的 Astro 网站"
-  description="我的第一个本地 Astro 网站"
->
+<BaseLayout title="我的 Astro 网站" description="我的第一个本地 Astro 网站">
   <Header />
 
   <main>
     <section class="hero">
-      <p class="label">
-        MY FIRST ASTRO PROJECT
-      </p>
+      <p class="label">MY FIRST ASTRO PROJECT</p>
 
       <h1>
         从零开始，
@@ -41,13 +36,9 @@ const features = [
       </p>
 
       <div class="actions">
-        <a class="primary-button" href="/about">
-          查看关于页面
-        </a>
+        <a class="primary-button" href="/about"> 查看关于页面 </a>
 
-        <button id="demo-button" type="button">
-          测试 JavaScript
-        </button>
+        <button id="demo-button" type="button"> 测试 JavaScript </button>
       </div>
 
       <p id="message" aria-live="polite"></p>
@@ -66,20 +57,13 @@ const features = [
   </main>
 
   <script>
-    const button =
-      document.querySelector<HTMLButtonElement>(
-        "#demo-button"
-      );
+    const button = document.querySelector<HTMLButtonElement>("#demo-button");
 
-    const message =
-      document.querySelector<HTMLParagraphElement>(
-        "#message"
-      );
+    const message = document.querySelector<HTMLParagraphElement>("#message");
 
     button?.addEventListener("click", () => {
       if (message) {
-        message.textContent =
-          "运行成功：浏览器端 JavaScript 正常工作。";
+        message.textContent = "运行成功：浏览器端 JavaScript 正常工作。";
       }
     });
   </script>

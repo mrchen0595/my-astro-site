@@ -4,126 +4,73 @@
   data-theme-toggle
   aria-label="切换网站主题"
 >
-  <span
-    class="theme-icon"
-    data-theme-icon
-    aria-hidden="true"
-  >
-    ◐
-  </span>
+  <span class="theme-icon" data-theme-icon aria-hidden="true"> ◐ </span>
 
-  <span
-    class="theme-label"
-    data-theme-label
-  >
-    系统
-  </span>
+  <span class="theme-label" data-theme-label> 系统 </span>
 </button>
 
 <script>
-  type ThemePreference =
-    | "system"
-    | "light"
-    | "dark";
+  type ThemePreference = "system" | "light" | "dark";
 
-  const storageKey =
-    "william-site-theme";
+  const storageKey = "william-site-theme";
 
-  const systemTheme =
-    window.matchMedia(
-      "(prefers-color-scheme: dark)"
-    );
+  const systemTheme = window.matchMedia("(prefers-color-scheme: dark)");
 
-  const themeOrder:
-    ThemePreference[] = [
-      "system",
-      "light",
-      "dark",
-    ];
+  const themeOrder: ThemePreference[] = ["system", "light", "dark"];
 
-  const labels:
-    Record<ThemePreference, string> = {
-      system: "系统",
-      light: "浅色",
-      dark: "深色",
-    };
+  const labels: Record<ThemePreference, string> = {
+    system: "系统",
+    light: "浅色",
+    dark: "深色",
+  };
 
-  const icons:
-    Record<ThemePreference, string> = {
-      system: "◐",
-      light: "☀",
-      dark: "☾",
-    };
+  const icons: Record<ThemePreference, string> = {
+    system: "◐",
+    light: "☀",
+    dark: "☾",
+  };
 
   function isThemePreference(
-    value: string | undefined
+    value: string | undefined,
   ): value is ThemePreference {
-    return (
-      value === "system" ||
-      value === "light" ||
-      value === "dark"
-    );
+    return value === "system" || value === "light" || value === "dark";
   }
 
-  function getPreference():
-    ThemePreference {
-    const value =
-      document.documentElement
-        .dataset.themePreference;
+  function getPreference(): ThemePreference {
+    const value = document.documentElement.dataset.themePreference;
 
-    return isThemePreference(value)
-      ? value
-      : "system";
+    return isThemePreference(value) ? value : "system";
   }
 
-  function resolveTheme(
-    preference: ThemePreference
-  ): "light" | "dark" {
+  function resolveTheme(preference: ThemePreference): "light" | "dark" {
     if (preference !== "system") {
       return preference;
     }
 
-    return systemTheme.matches
-      ? "dark"
-      : "light";
+    return systemTheme.matches ? "dark" : "light";
   }
 
-  function savePreference(
-    preference: ThemePreference
-  ): void {
+  function savePreference(preference: ThemePreference): void {
     try {
-      localStorage.setItem(
-        storageKey,
-        preference
-      );
+      localStorage.setItem(storageKey, preference);
     } catch {
       // 存储不可用时，当前页面仍然可以切换。
     }
   }
 
-  function updateControls(
-    preference: ThemePreference
-  ): void {
+  function updateControls(preference: ThemePreference): void {
     document
-      .querySelectorAll<HTMLButtonElement>(
-        "[data-theme-toggle]"
-      )
+      .querySelectorAll<HTMLButtonElement>("[data-theme-toggle]")
       .forEach((button) => {
-        const label =
-          labels[preference];
+        const label = labels[preference];
 
-        const icon =
-          icons[preference];
+        const icon = icons[preference];
 
         const labelElement =
-          button.querySelector<HTMLElement>(
-            "[data-theme-label]"
-          );
+          button.querySelector<HTMLElement>("[data-theme-label]");
 
         const iconElement =
-          button.querySelector<HTMLElement>(
-            "[data-theme-icon]"
-          );
+          button.querySelector<HTMLElement>("[data-theme-icon]");
 
         if (labelElement) {
           labelElement.textContent = label;
@@ -135,26 +82,19 @@
 
         button.setAttribute(
           "aria-label",
-          `当前主题偏好：${label}。点击切换主题。`
+          `当前主题偏好：${label}。点击切换主题。`,
         );
 
-        button.title =
-          `当前：${label}主题`;
+        button.title = `当前：${label}主题`;
       });
   }
 
-  function applyPreference(
-    preference: ThemePreference,
-    persist = true
-  ): void {
-    const root =
-      document.documentElement;
+  function applyPreference(preference: ThemePreference, persist = true): void {
+    const root = document.documentElement;
 
-    root.dataset.theme =
-      resolveTheme(preference);
+    root.dataset.theme = resolveTheme(preference);
 
-    root.dataset.themePreference =
-      preference;
+    root.dataset.themePreference = preference;
 
     if (persist) {
       savePreference(preference);
@@ -163,64 +103,39 @@
     updateControls(preference);
   }
 
-  function initializeThemeToggle():
-    void {
-    const preference =
-      getPreference();
+  function initializeThemeToggle(): void {
+    const preference = getPreference();
 
     updateControls(preference);
 
     document
-      .querySelectorAll<HTMLButtonElement>(
-        "[data-theme-toggle]"
-      )
+      .querySelectorAll<HTMLButtonElement>("[data-theme-toggle]")
       .forEach((button) => {
-        if (
-          button.dataset.themeInitialized ===
-          "true"
-        ) {
+        if (button.dataset.themeInitialized === "true") {
           return;
         }
 
-        button.dataset.themeInitialized =
-          "true";
+        button.dataset.themeInitialized = "true";
 
-        button.addEventListener(
-          "click",
-          () => {
-            const current =
-              getPreference();
+        button.addEventListener("click", () => {
+          const current = getPreference();
 
-            const currentIndex =
-              themeOrder.indexOf(current);
+          const currentIndex = themeOrder.indexOf(current);
 
-            const nextIndex =
-              (currentIndex + 1) %
-              themeOrder.length;
+          const nextIndex = (currentIndex + 1) % themeOrder.length;
 
-            applyPreference(
-              themeOrder[nextIndex]
-            );
-          }
-        );
+          applyPreference(themeOrder[nextIndex]);
+        });
       });
   }
 
   initializeThemeToggle();
 
-  systemTheme.addEventListener(
-    "change",
-    () => {
-      if (
-        getPreference() === "system"
-      ) {
-        applyPreference(
-          "system",
-          false
-        );
-      }
+  systemTheme.addEventListener("change", () => {
+    if (getPreference() === "system") {
+      applyPreference("system", false);
     }
-  );
+  });
 </script>
 
 <style>
@@ -231,11 +146,9 @@
     gap: 7px;
     min-height: 39px;
     padding: 0 12px;
-    border: 1px solid
-      var(--color-border);
+    border: 1px solid var(--color-border);
     border-radius: 10px;
-    background:
-      var(--color-surface);
+    background: var(--color-surface);
     color: var(--color-text-soft);
     font-weight: 700;
     cursor: pointer;
@@ -247,8 +160,7 @@
   }
 
   .theme-toggle:hover {
-    border-color:
-      var(--color-accent);
+    border-color: var(--color-accent);
     color: var(--color-accent);
     transform: translateY(-1px);
   }

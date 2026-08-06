@@ -9,25 +9,13 @@ interface Props {
   eager?: boolean;
 }
 
-const {
-  src,
-  alt,
-  variant = "card",
-  eager = false,
-} = Astro.props;
+const { src, alt, variant = "card", eager = false } = Astro.props;
 
-const width =
-  variant === "article"
-    ? 1200
-    : 720;
+const width = variant === "article" ? 1200 : 720;
 
-const height =
-  variant === "article"
-    ? 630
-    : 405;
+const height = variant === "article" ? 630 : 405;
 
-const className =
-  `blog-cover ${variant}`;
+const className = `blog-cover ${variant}`;
 ---
 
 <Image

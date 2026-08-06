@@ -1,56 +1,30 @@
 ---
-import {
-  getCollection,
-} from "astro:content";
+import { getCollection } from "astro:content";
 
-import BaseLayout from
-  "../../layouts/BaseLayout.astro";
+import BaseLayout from "../../layouts/BaseLayout.astro";
 
-import Header from
-  "../../components/Header.astro";
+import Header from "../../components/Header.astro";
 
-import BlogCard from
-  "../../components/BlogCard.astro";
+import BlogCard from "../../components/BlogCard.astro";
 
-import BlogFilters from
-  "../../components/BlogFilters.astro";
+import BlogFilters from "../../components/BlogFilters.astro";
 
 const posts = (
-  await getCollection(
-    "blog",
-    ({ data }) =>
-      data.draft !== true
-  )
-).sort(
-  (a, b) =>
-    b.data.pubDate.valueOf() -
-    a.data.pubDate.valueOf()
-);
+  await getCollection("blog", ({ data }) => data.draft !== true)
+).sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
 
-const tagCountMap =
-  new Map<string, number>();
+const tagCountMap = new Map<string, number>();
 
 posts.forEach((post) => {
   post.data.tags.forEach((tag) => {
-    tagCountMap.set(
-      tag,
-      (tagCountMap.get(tag) ?? 0) + 1
-    );
+    tagCountMap.set(tag, (tagCountMap.get(tag) ?? 0) + 1);
   });
 });
 
-const tags = Array.from(
-  tagCountMap,
-  ([name, count]) => ({
-    name,
-    count,
-  })
-).sort((a, b) =>
-  a.name.localeCompare(
-    b.name,
-    "zh-CN"
-  )
-);
+const tags = Array.from(tagCountMap, ([name, count]) => ({
+  name,
+  count,
+})).sort((a, b) => a.name.localeCompare(b.name, "zh-CN"));
 ---
 
 <BaseLayout
@@ -61,21 +35,13 @@ const tags = Array.from(
 
   <main class="blog-page">
     <section class="page-heading">
-      <p class="label">
-        LEARNING NOTES
-      </p>
+      <p class="label">LEARNING NOTES</p>
 
       <h1>博客文章</h1>
 
-      <p class="intro">
-        这里记录我的前端开发学习过程、
-        技术实践和项目总结。
-      </p>
+      <p class="intro">这里记录我的前端开发学习过程、 技术实践和项目总结。</p>
 
-      <a
-        class="rss-link"
-        href="/rss.xml"
-      >
+      <a class="rss-link" href="/rss.xml">
         订阅博客 RSS
         <span aria-hidden="true">→</span>
       </a>
@@ -84,56 +50,34 @@ const tags = Array.from(
     {
       posts.length > 0 ? (
         <>
-          <BlogFilters
-            tags={tags}
-            total={posts.length}
-          />
+          <BlogFilters tags={tags} total={posts.length} />
 
           <section
             id="blog-results"
             class="blog-grid"
             aria-label="博客文章列表"
           >
-            {
-              posts.map((post) => (
-                <div
-                  class="post-item"
-                  data-blog-item
-                  data-title={
-                    post.data.title
-                  }
-                  data-description={
-                    post.data.description
-                  }
-                  data-tags={
-                    JSON.stringify(
-                      post.data.tags
-                    )
-                  }
-                >
-                  <BlogCard post={post} />
-                </div>
-              ))
-            }
+            {posts.map((post) => (
+              <div
+                class="post-item"
+                data-blog-item
+                data-title={post.data.title}
+                data-description={post.data.description}
+                data-tags={JSON.stringify(post.data.tags)}
+              >
+                <BlogCard post={post} />
+              </div>
+            ))}
           </section>
 
-          <section
-            id="blog-empty-message"
-            class="empty-state"
-            hidden
-          >
+          <section id="blog-empty-message" class="empty-state" hidden>
             <h2>没有找到相关文章</h2>
 
-            <p>
-              尝试更换关键词，
-              或选择其他标签。
-            </p>
+            <p>尝试更换关键词， 或选择其他标签。</p>
           </section>
         </>
       ) : (
-        <p class="empty-message">
-          目前还没有已发布的文章。
-        </p>
+        <p class="empty-message">目前还没有已发布的文章。</p>
       )
     }
   </main>
@@ -141,10 +85,7 @@ const tags = Array.from(
 
 <style>
   .blog-page {
-    width: min(
-      1100px,
-      calc(100% - 40px)
-    );
+    width: min(1100px, calc(100% - 40px));
     margin: 0 auto;
     padding: 80px 0 100px;
   }
@@ -163,11 +104,7 @@ const tags = Array.from(
 
   h1 {
     margin: 14px 0 22px;
-    font-size: clamp(
-      48px,
-      8vw,
-      78px
-    );
+    font-size: clamp(48px, 8vw, 78px);
     line-height: 1.05;
     letter-spacing: -0.055em;
   }
@@ -195,8 +132,7 @@ const tags = Array.from(
 
   .blog-grid {
     display: grid;
-    grid-template-columns:
-      repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 24px;
     margin-top: 34px;
   }
@@ -235,10 +171,7 @@ const tags = Array.from(
 
   @media (max-width: 760px) {
     .blog-page {
-      width: min(
-        100% - 24px,
-        1100px
-      );
+      width: min(100% - 24px, 1100px);
       padding-top: 50px;
     }
 

@@ -17,11 +17,7 @@
       aria-describedby="contact-name-error"
     />
 
-    <p
-      id="contact-name-error"
-      class="field-error"
-      aria-live="polite"
-    ></p>
+    <p id="contact-name-error" class="field-error" aria-live="polite"></p>
   </div>
 
   <div class="field">
@@ -41,17 +37,11 @@
       aria-describedby="contact-email-error"
     />
 
-    <p
-      id="contact-email-error"
-      class="field-error"
-      aria-live="polite"
-    ></p>
+    <p id="contact-email-error" class="field-error" aria-live="polite"></p>
   </div>
 
   <div class="field">
-    <label for="contact-subject">
-      主题
-    </label>
+    <label for="contact-subject"> 主题 </label>
 
     <input
       id="contact-subject"
@@ -76,97 +66,61 @@
       minlength="10"
       maxlength="1000"
       data-validate
-      aria-describedby="contact-message-error contact-message-help"
-    ></textarea>
+      aria-describedby="contact-message-error contact-message-help"></textarea>
 
     <div class="field-meta">
-      <p id="contact-message-help">
-        至少输入 10 个字符。
-      </p>
+      <p id="contact-message-help">至少输入 10 个字符。</p>
 
       <p>
         <span id="message-count">0</span>/1000
       </p>
     </div>
 
-    <p
-      id="contact-message-error"
-      class="field-error"
-      aria-live="polite"
-    ></p>
+    <p id="contact-message-error" class="field-error" aria-live="polite"></p>
   </div>
-    <div class="website-field" aria-hidden="true">
-    <label for="contact-website">
-        网站
-    </label>
+  <div class="website-field" aria-hidden="true">
+    <label for="contact-website"> 网站 </label>
 
     <input
-        id="contact-website"
-        name="website"
-        type="text"
-        tabindex="-1"
-        autocomplete="off"
+      id="contact-website"
+      name="website"
+      type="text"
+      tabindex="-1"
+      autocomplete="off"
     />
-    </div>
-  <button id="submit-button" type="submit">
-    提交表单
-  </button>
+  </div>
+  <button id="submit-button" type="submit"> 提交表单 </button>
 
   <p class="demo-note">
     提交后，留言将通过服务端接口发送到我的邮箱。
     请不要填写密码、银行卡等敏感信息。
   </p>
 
-  <p
-    id="form-status"
-    class="form-status"
-    role="status"
-    aria-live="polite"
-  ></p>
+  <p id="form-status" class="form-status" role="status" aria-live="polite"></p>
 </form>
 
 <script>
-  type ValidatedField =
-    | HTMLInputElement
-    | HTMLTextAreaElement;
+  type ValidatedField = HTMLInputElement | HTMLTextAreaElement;
 
-  const form =
-    document.querySelector<HTMLFormElement>(
-      "#contact-form"
-    );
+  const form = document.querySelector<HTMLFormElement>("#contact-form");
 
   if (form) {
     const fields = Array.from(
-      form.querySelectorAll<ValidatedField>(
-        "[data-validate]"
-      )
+      form.querySelectorAll<ValidatedField>("[data-validate]"),
     );
 
     const submitButton =
-      form.querySelector<HTMLButtonElement>(
-        "#submit-button"
-      );
+      form.querySelector<HTMLButtonElement>("#submit-button");
 
-    const formStatus =
-      form.querySelector<HTMLParagraphElement>(
-        "#form-status"
-      );
+    const formStatus = form.querySelector<HTMLParagraphElement>("#form-status");
 
     const messageField =
-      form.querySelector<HTMLTextAreaElement>(
-        "#contact-message"
-      );
+      form.querySelector<HTMLTextAreaElement>("#contact-message");
 
-    const messageCount =
-      form.querySelector<HTMLSpanElement>(
-        "#message-count"
-      );
+    const messageCount = form.querySelector<HTMLSpanElement>("#message-count");
 
-    function getErrorElement(
-      field: ValidatedField
-    ): HTMLElement | null {
-      const describedBy =
-        field.getAttribute("aria-describedby");
+    function getErrorElement(field: ValidatedField): HTMLElement | null {
+      const describedBy = field.getAttribute("aria-describedby");
 
       if (!describedBy) {
         return null;
@@ -176,14 +130,10 @@
         .split(" ")
         .find((id) => id.endsWith("-error"));
 
-      return errorId
-        ? document.getElementById(errorId)
-        : null;
+      return errorId ? document.getElementById(errorId) : null;
     }
 
-    function setCustomMessage(
-      field: ValidatedField
-    ): void {
+    function setCustomMessage(field: ValidatedField): void {
       const value = field.value.trim();
 
       field.setCustomValidity("");
@@ -204,80 +154,45 @@
         return;
       }
 
-      if (
-        field.id === "contact-name" &&
-        value.length < 2
-      ) {
-        field.setCustomValidity(
-          "姓名至少需要 2 个字符。"
-        );
+      if (field.id === "contact-name" && value.length < 2) {
+        field.setCustomValidity("姓名至少需要 2 个字符。");
         return;
       }
 
-      if (
-        field.id === "contact-email" &&
-        field.validity.typeMismatch
-      ) {
-        field.setCustomValidity(
-          "请输入有效的邮箱地址。"
-        );
+      if (field.id === "contact-email" && field.validity.typeMismatch) {
+        field.setCustomValidity("请输入有效的邮箱地址。");
         return;
       }
 
-      if (
-        field.id === "contact-message" &&
-        value.length < 10
-      ) {
-        field.setCustomValidity(
-          "留言至少需要 10 个字符。"
-        );
+      if (field.id === "contact-message" && value.length < 10) {
+        field.setCustomValidity("留言至少需要 10 个字符。");
       }
     }
 
-    function validateField(
-      field: ValidatedField
-    ): boolean {
+    function validateField(field: ValidatedField): boolean {
       setCustomMessage(field);
 
       const isValid = field.checkValidity();
-      const errorElement =
-        getErrorElement(field);
+      const errorElement = getErrorElement(field);
 
-      field.setAttribute(
-        "aria-invalid",
-        String(!isValid)
-      );
+      field.setAttribute("aria-invalid", String(!isValid));
 
-      field
-        .closest(".field")
-        ?.classList.toggle(
-          "has-error",
-          !isValid
-        );
+      field.closest(".field")?.classList.toggle("has-error", !isValid);
 
       if (errorElement) {
-        errorElement.textContent =
-          isValid ? "" : field.validationMessage;
+        errorElement.textContent = isValid ? "" : field.validationMessage;
       }
 
       return isValid;
     }
 
-    function clearFieldState(
-      field: ValidatedField
-    ): void {
+    function clearFieldState(field: ValidatedField): void {
       field.setCustomValidity("");
-      field.setAttribute(
-        "aria-invalid",
-        "false"
-      );
+      field.setAttribute("aria-invalid", "false");
 
-      field
-        .closest(".field")
-        ?.classList.remove("has-error");
+      field.closest(".field")?.classList.remove("has-error");
 
-      const errorElement =
-        getErrorElement(field);
+      const errorElement = getErrorElement(field);
 
       if (errorElement) {
         errorElement.textContent = "";
@@ -290,156 +205,107 @@
       });
 
       field.addEventListener("input", () => {
-        if (
-          field.getAttribute("aria-invalid") ===
-          "true"
-        ) {
+        if (field.getAttribute("aria-invalid") === "true") {
           validateField(field);
         }
       });
     });
 
-    messageField?.addEventListener(
-      "input",
-      () => {
-        if (messageCount) {
-          messageCount.textContent =
-            String(messageField.value.length);
-        }
+    messageField?.addEventListener("input", () => {
+      if (messageCount) {
+        messageCount.textContent = String(messageField.value.length);
       }
-    );
+    });
 
-form.addEventListener(
-  "submit",
-  async (event) => {
-    event.preventDefault();
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
 
-    if (submitButton?.disabled) {
-      return;
-    }
+      if (submitButton?.disabled) {
+        return;
+      }
 
-    const results =
-      fields.map(validateField);
+      const results = fields.map(validateField);
 
-    const allValid =
-      results.every(Boolean);
+      const allValid = results.every(Boolean);
 
-    if (!allValid) {
-      const firstInvalid =
-        fields.find(
-          (field) =>
-            field.getAttribute(
-              "aria-invalid"
-            ) === "true"
+      if (!allValid) {
+        const firstInvalid = fields.find(
+          (field) => field.getAttribute("aria-invalid") === "true",
         );
 
-      firstInvalid?.focus();
+        firstInvalid?.focus();
 
-      if (formStatus) {
-        formStatus.className =
-          "form-status error";
+        if (formStatus) {
+          formStatus.className = "form-status error";
 
-        formStatus.textContent =
-          "表单中还有错误，请检查后重新提交。";
+          formStatus.textContent = "表单中还有错误，请检查后重新提交。";
+        }
+
+        return;
       }
 
-      return;
-    }
+      const formData = new FormData(form);
 
-    const formData =
-      new FormData(form);
+      const payload = Object.fromEntries(formData.entries());
 
-    const payload =
-      Object.fromEntries(
-        formData.entries()
-      );
+      if (submitButton) {
+        submitButton.disabled = true;
+        submitButton.textContent = "正在发送…";
+      }
 
-    if (submitButton) {
-      submitButton.disabled = true;
-      submitButton.textContent =
-        "正在发送…";
-    }
+      if (formStatus) {
+        formStatus.className = "form-status";
 
-    if (formStatus) {
-      formStatus.className =
-        "form-status";
+        formStatus.textContent = "正在连接邮件服务器…";
+      }
 
-      formStatus.textContent =
-        "正在连接邮件服务器…";
-    }
-
-    try {
-      const response = await fetch(
-        "/api/contact",
-        {
+      try {
+        const response = await fetch("/api/contact", {
           method: "POST",
           headers: {
-            "Content-Type":
-              "application/json",
+            "Content-Type": "application/json",
           },
           body: JSON.stringify(payload),
+        });
+
+        const result = (await response.json().catch(() => null)) as {
+          ok?: boolean;
+          message?: string;
+        } | null;
+
+        if (!response.ok || !result?.ok) {
+          throw new Error(result?.message ?? "发送失败，请稍后重试。");
         }
-      );
 
-      const result = await response
-        .json()
-        .catch(() => null) as
-          | {
-              ok?: boolean;
-              message?: string;
-            }
-          | null;
+        form.reset();
 
-      if (
-        !response.ok ||
-        !result?.ok
-      ) {
-        throw new Error(
-          result?.message ??
-            "发送失败，请稍后重试。"
-        );
+        fields.forEach(clearFieldState);
+
+        if (messageCount) {
+          messageCount.textContent = "0";
+        }
+
+        if (formStatus) {
+          formStatus.className = "form-status success";
+
+          formStatus.textContent = result.message ?? "留言发送成功。";
+        }
+      } catch (error) {
+        const message =
+          error instanceof Error ? error.message : "发送失败，请稍后重试。";
+
+        if (formStatus) {
+          formStatus.className = "form-status error";
+
+          formStatus.textContent = message;
+        }
+      } finally {
+        if (submitButton) {
+          submitButton.disabled = false;
+          submitButton.textContent = "提交表单";
+        }
       }
-
-      form.reset();
-
-      fields.forEach(
-        clearFieldState
-      );
-
-      if (messageCount) {
-        messageCount.textContent = "0";
-      }
-
-      if (formStatus) {
-        formStatus.className =
-          "form-status success";
-
-        formStatus.textContent =
-          result.message ??
-          "留言发送成功。";
-      }
-    } catch (error) {
-      const message =
-        error instanceof Error
-          ? error.message
-          : "发送失败，请稍后重试。";
-
-      if (formStatus) {
-        formStatus.className =
-          "form-status error";
-
-        formStatus.textContent =
-          message;
-      }
-    } finally {
-      if (submitButton) {
-        submitButton.disabled = false;
-        submitButton.textContent =
-          "提交表单";
-      }
-    }
-  }
-);
+    });
   }
 </script>
 
@@ -449,18 +315,16 @@ form.addEventListener(
     border: 1px solid var(--color-border);
     border-radius: 22px;
     background: var(--color-surface);
-    box-shadow:
-      0 18px 50px
-      rgba(30, 35, 70, 0.07);
+    box-shadow: 0 18px 50px rgba(30, 35, 70, 0.07);
   }
 
   .website-field {
-  position: absolute;
-  left: -10000px;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-    } 
+    position: absolute;
+    left: -10000px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+  }
   .field + .field {
     margin-top: 22px;
   }
@@ -498,8 +362,7 @@ form.addEventListener(
   input:focus,
   textarea:focus {
     border-color: var(--color-accent);
-    box-shadow:
-      var(--focus-ring);
+    box-shadow: var(--focus-ring);
   }
 
   .has-error input,
@@ -509,9 +372,7 @@ form.addEventListener(
 
   .has-error input:focus,
   .has-error textarea:focus {
-    box-shadow:
-      0 0 0 4px
-      rgba(194, 65, 65, 0.12);
+    box-shadow: 0 0 0 4px rgba(194, 65, 65, 0.12);
   }
 
   .field-error {
