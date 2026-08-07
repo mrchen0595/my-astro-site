@@ -12,9 +12,14 @@
     "astro": "astro",
     "check": "astro check --minimumFailingSeverity warning",
     "check:watch": "astro check --watch",
+    "check:e2e": "tsc -p e2e/tsconfig.json --noEmit",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "quality": "npm run check && npm run format:check && npm run build"
+    "test:e2e": "playwright test",
+    "test:e2e:headed": "playwright test --headed",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:report": "playwright show-report",
+    "quality": "npm run check && npm run check:e2e && npm run format:check && npm run build"
   },
   "dependencies": {
     "@astrojs/rss": "^4.0.19",
@@ -25,6 +30,8 @@
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.10",
+    "@playwright/test": "^1.62.1",
+    "@types/node": "^26.1.2",
     "prettier": "3.9.6",
     "prettier-plugin-astro": "^0.14.1",
     "typescript": "^6.0.3"
