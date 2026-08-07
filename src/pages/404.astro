@@ -1,0 +1,108 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Header from "../components/Header.astro";
+---
+
+<BaseLayout
+  title="页面未找到 | William Chan"
+  description="你访问的页面不存在。"
+>
+  <Header />
+
+  <main class="not-found">
+    <p class="code">404</p>
+
+    <h1>这个页面不存在</h1>
+
+    <p class="description">
+      你访问的地址可能已经被删除、移动， 或者网址输入有误。
+    </p>
+
+    <div class="actions">
+      <a class="primary" href="/"> 返回首页 </a>
+
+      <a class="secondary" href="/blog"> 浏览博客 </a>
+    </div>
+  </main>
+</BaseLayout>
+
+<style>
+  .not-found {
+    width: min(760px, calc(100% - 40px));
+    min-height: 65vh;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 80px 0 120px;
+  }
+
+  .code {
+    margin: 0;
+    color: var(--color-accent);
+    font-size: 16px;
+    font-weight: 800;
+    letter-spacing: 0.15em;
+  }
+
+  h1 {
+    margin: 16px 0 20px;
+    color: var(--color-text);
+    font-size: clamp(48px, 8vw, 76px);
+    line-height: 1.05;
+    letter-spacing: -0.05em;
+  }
+
+  .description {
+    max-width: 620px;
+    margin: 0;
+    color: var(--color-muted);
+    font-size: 19px;
+    line-height: 1.8;
+  }
+
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 34px;
+  }
+
+  .actions a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 46px;
+    padding: 0 18px;
+    border-radius: 10px;
+    font-weight: 800;
+    text-decoration: none;
+  }
+
+  .primary {
+    background: var(--color-accent);
+    color: var(--color-on-accent);
+  }
+
+  .primary:hover {
+    background: var(--color-accent-hover);
+  }
+
+  .secondary {
+    border: 1px solid var(--color-border);
+    background: var(--color-surface);
+    color: var(--color-text);
+  }
+
+  .secondary:hover {
+    border-color: var(--color-accent);
+    color: var(--color-accent);
+  }
+
+  @media (max-width: 600px) {
+    .not-found {
+      width: min(100% - 24px, 760px);
+      padding-top: 50px;
+    }
+  }
+</style>
