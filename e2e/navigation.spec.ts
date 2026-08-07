@@ -34,7 +34,11 @@ test.describe("主要页面和导航", () => {
     ];
 
     for (const item of pages) {
-      const link = page.getByRole("link", {
+      const mainNav = page.getByRole("navigation", {
+        name: "主导航",
+      });
+
+      const link = mainNav.getByRole("link", {
         name: item.link,
         exact: true,
       });
@@ -53,7 +57,11 @@ test.describe("主要页面和导航", () => {
       await expect(link).toHaveAttribute("aria-current", "page");
     }
 
-    await page
+    const mainNav = page.getByRole("navigation", {
+      name: "主导航",
+    });
+
+    await mainNav
       .getByRole("link", {
         name: "首页",
         exact: true,
@@ -82,6 +90,44 @@ test.describe("主要页面和导航", () => {
 
     await expect(
       page.getByText("暂未开放", {
+        exact: true,
+      }),
+    ).toBeVisible();
+  });
+
+  test("页脚导航正常显示", async ({ page }) => {
+    await page.goto("/");
+
+    const footerNav = page.getByRole("navigation", {
+      name: "页脚导航",
+    });
+
+    await expect(footerNav).toBeVisible();
+
+    await expect(
+      footerNav.getByRole("link", {
+        name: "首页",
+        exact: true,
+      }),
+    ).toBeVisible();
+
+    await expect(
+      footerNav.getByRole("link", {
+        name: "项目",
+        exact: true,
+      }),
+    ).toBeVisible();
+
+    await expect(
+      footerNav.getByRole("link", {
+        name: "博客",
+        exact: true,
+      }),
+    ).toBeVisible();
+
+    await expect(
+      footerNav.getByRole("link", {
+        name: "关于",
         exact: true,
       }),
     ).toBeVisible();

@@ -1,4 +1,6 @@
 ---
+import Footer from "../components/Footer.astro";
+
 import "../styles/global.css";
 
 import type { ImageMetadata } from "astro";
@@ -168,5 +170,7 @@ const updatedISO = updatedTime?.toISOString();
 
   <body>
     <slot />
+
+    <Footer />
   </body>
 </html>
