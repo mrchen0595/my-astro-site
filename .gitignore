@@ -29,3 +29,7 @@ pnpm-debug.log*
 playwright-report/
 test-results/
 blob-report/
+
+# Lighthouse CI generated files
+.lighthouseci/
+lighthouse-report/
