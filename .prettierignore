@@ -22,3 +22,7 @@ package-lock.json
 
 # Preserve deliberate article formatting
 src/content/blog/**/*.md
+
+# Lighthouse CI generated files
+.lighthouseci/
+lighthouse-report/
