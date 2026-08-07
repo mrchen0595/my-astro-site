@@ -62,7 +62,11 @@ test.describe("联系表单", () => {
 
     await page.getByLabel(/^邮箱/).fill("william@example.com");
 
-    await page.getByLabel("主题").fill("自动化测试");
+    await page
+      .getByLabel("主题", {
+        exact: true,
+      })
+      .fill("自动化测试");
 
     await page
       .getByLabel(/^留言/)

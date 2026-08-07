@@ -16,19 +16,15 @@ test("博客可以搜索、筛选并恢复 URL 状态", async ({ page }) => {
   await expect(firstPost).toBeVisible();
   await expect(componentPost).toBeVisible();
 
-  await search.fill("组件化");
+  await search.fill("为什么网页");
 
-  await expect(
-    page.getByText("显示 1 篇文章", {
-      exact: true,
-    }),
-  ).toBeVisible();
+  await expect(page.locator("#blog-result-count")).toHaveText("显示 1 篇文章");
 
   await expect(componentPost).toBeVisible();
 
   await expect(firstPost).toBeHidden();
 
-  expect(new URL(page.url()).searchParams.get("q")).toBe("组件化");
+  expect(new URL(page.url()).searchParams.get("q")).toBe("为什么网页");
 
   await page
     .getByRole("button", {
