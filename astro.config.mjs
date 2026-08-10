@@ -14,10 +14,18 @@ export default defineConfig({
   security: {
     csp: {
       directives: [
+        "default-src 'self'",
+        "img-src 'self' data:",
+        "font-src 'self' https://fonts.gstatic.com",
+        "connect-src 'self'",
         "object-src 'none'",
         "base-uri 'self'",
         "form-action 'self'",
       ],
+
+      styleDirective: {
+        resources: ["'self'", "https://fonts.googleapis.com"],
+      },
     },
   },
   integrations: [sitemap()],
