@@ -11,5 +11,14 @@ export default defineConfig({
   adapter: vercel({
     staticHeaders: true,
   }),
+  security: {
+    csp: {
+      directives: [
+        "object-src 'none'",
+        "base-uri 'self'",
+        "form-action 'self'",
+      ],
+    },
+  },
   integrations: [sitemap()],
 });
