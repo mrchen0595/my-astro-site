@@ -1,0 +1,335 @@
+---
+import { getCollection, type CollectionEntry } from "astro:content";
+
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import Header from "../../components/Header.astro";
+
+export async function getStaticPaths() {
+  const projects = await getCollection("projects");
+
+  return projects.map((project) => ({
+    params: {
+      id: project.id,
+    },
+
+    props: {
+      project,
+    },
+  }));
+}
+
+interface Props {
+  project: CollectionEntry<"projects">;
+}
+
+const { project } = Astro.props;
+
+const { title, description, technologies, status, href } = project.data;
+---
+
+<BaseLayout title={`${title} | William 的网站`} description={description}>
+  <Header />
+
+  <main>
+    <a class="back-link" href="/projects"> ← 返回项目列表 </a>
+
+    <section class="project-hero">
+      <div class="project-heading">
+        <p class="label">PROJECT DETAIL</p>
+
+        <div class="title-row">
+          <h1>{title}</h1>
+
+          <span class="status">
+            {status}
+          </span>
+        </div>
+
+        <p class="description">
+          {description}
+        </p>
+      </div>
+    </section>
+
+    <section class="project-content" aria-label="项目详细信息">
+      <div class="content-card">
+        <p class="section-label">TECHNOLOGIES</p>
+
+        <h2>使用技术</h2>
+
+        <ul class="technology-list" aria-label={`${title} 使用的技术`}>
+          {technologies.map((technology) => <li>{technology}</li>)}
+        </ul>
+      </div>
+
+      <div class="content-card">
+        <p class="section-label">STATUS</p>
+
+        <h2>项目状态</h2>
+
+        <p class="status-description">
+          当前状态：
+          <strong>{status}</strong>
+        </p>
+
+        {
+          href ? (
+            <a class="project-button" href={href}>
+              打开项目
+              <span aria-hidden="true">→</span>
+            </a>
+          ) : (
+            <p class="unavailable">当前项目暂未开放。</p>
+          )
+        }
+      </div>
+    </section>
+  </main>
+</BaseLayout>
+
+<style>
+  main {
+    width: min(1000px, calc(100% - 40px));
+
+    margin: 0 auto;
+
+    padding: 60px 0 100px;
+  }
+
+  .back-link {
+    display: inline-flex;
+
+    align-items: center;
+
+    margin-bottom: 56px;
+
+    color: var(--color-muted);
+
+    font-weight: 700;
+
+    text-decoration: none;
+
+    transition: color 160ms ease;
+  }
+
+  .back-link:hover {
+    color: var(--color-accent);
+  }
+
+  .project-hero {
+    max-width: 850px;
+  }
+
+  .label,
+  .section-label {
+    margin: 0;
+
+    color: var(--color-accent);
+
+    font-size: 13px;
+
+    font-weight: 800;
+
+    letter-spacing: 0.18em;
+  }
+
+  .title-row {
+    display: flex;
+
+    align-items: flex-start;
+
+    justify-content: space-between;
+
+    gap: 28px;
+
+    margin-top: 16px;
+  }
+
+  h1 {
+    margin: 0;
+
+    color: var(--color-text);
+
+    font-size: clamp(46px, 8vw, 76px);
+
+    line-height: 1.05;
+
+    letter-spacing: -0.055em;
+  }
+
+  .status {
+    flex-shrink: 0;
+
+    margin-top: 10px;
+
+    padding: 8px 12px;
+
+    border-radius: 999px;
+
+    background: var(--color-accent-soft);
+
+    color: var(--color-accent);
+
+    font-size: 13px;
+
+    font-weight: 800;
+  }
+
+  .description {
+    max-width: 760px;
+
+    margin: 30px 0 0;
+
+    color: var(--color-muted);
+
+    font-size: 20px;
+
+    line-height: 1.8;
+  }
+
+  .project-content {
+    display: grid;
+
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+
+    gap: 24px;
+
+    margin-top: 64px;
+  }
+
+  .content-card {
+    padding: 30px;
+
+    border: 1px solid var(--color-border);
+
+    border-radius: 20px;
+
+    background: var(--color-surface);
+
+    box-shadow: var(--shadow-card);
+  }
+
+  .content-card h2 {
+    margin: 12px 0 0;
+
+    color: var(--color-text);
+
+    font-size: 26px;
+  }
+
+  .technology-list {
+    display: flex;
+
+    flex-wrap: wrap;
+
+    gap: 10px;
+
+    margin: 26px 0 0;
+
+    padding: 0;
+
+    list-style: none;
+  }
+
+  .technology-list li {
+    padding: 8px 12px;
+
+    border-radius: 8px;
+
+    background: var(--color-subtle);
+
+    color: var(--color-text-soft);
+
+    font-size: 14px;
+
+    font-weight: 700;
+  }
+
+  .status-description {
+    margin: 26px 0 0;
+
+    color: var(--color-muted);
+
+    line-height: 1.7;
+  }
+
+  .status-description strong {
+    color: var(--color-text);
+  }
+
+  .project-button {
+    display: inline-flex;
+
+    align-items: center;
+
+    gap: 8px;
+
+    margin-top: 28px;
+
+    padding: 12px 18px;
+
+    border-radius: 10px;
+
+    background: var(--color-accent);
+
+    color: white;
+
+    font-weight: 800;
+
+    text-decoration: none;
+
+    transition:
+      transform 160ms ease,
+      background 160ms ease;
+  }
+
+  .project-button:hover {
+    background: var(--color-accent-hover);
+
+    transform: translateY(-2px);
+  }
+
+  .unavailable {
+    margin: 28px 0 0;
+
+    color: var(--color-disabled);
+
+    font-weight: 700;
+  }
+
+  @media (max-width: 700px) {
+    main {
+      width: min(100% - 24px, 1000px);
+
+      padding-top: 40px;
+    }
+
+    .back-link {
+      margin-bottom: 40px;
+    }
+
+    .title-row {
+      flex-direction: column;
+
+      gap: 16px;
+    }
+
+    .status {
+      margin-top: 0;
+    }
+
+    .description {
+      font-size: 18px;
+    }
+
+    .project-content {
+      grid-template-columns: 1fr;
+
+      margin-top: 44px;
+    }
+
+    .content-card {
+      padding: 24px;
+    }
+  }
+</style>

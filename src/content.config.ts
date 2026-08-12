@@ -28,6 +28,28 @@ const blog = defineCollection({
     }),
 });
 
+const projects = defineCollection({
+  loader: glob({
+    base: "./src/content/projects",
+    pattern: "**/*.json",
+  }),
+
+  schema: z.object({
+    title: z.string(),
+
+    description: z.string(),
+
+    technologies: z.array(z.string()),
+
+    status: z.string(),
+
+    href: z.string().optional(),
+
+    order: z.number(),
+  }),
+});
+
 export const collections = {
   blog,
+  projects,
 };
