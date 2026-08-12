@@ -1,8 +1,0 @@
-{
-  "title": "关于页面",
-  "description": "一个独立的内容页面，用于练习文件路由、公共组件和页面布局复用。",
-  "technologies": ["Astro 路由", "组件复用", "响应式设计"],
-  "status": "已完成",
-  "href": "/about",
-  "order": 2
-}

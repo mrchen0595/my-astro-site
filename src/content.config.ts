@@ -31,13 +31,13 @@ const blog = defineCollection({
 const projects = defineCollection({
   loader: glob({
     base: "./src/content/projects",
-    pattern: "**/*.json",
+    pattern: "**/*.md",
   }),
 
   schema: z.object({
-    title: z.string(),
+    title: z.string().min(1),
 
-    description: z.string(),
+    description: z.string().min(1),
 
     technologies: z.array(z.string()),
 

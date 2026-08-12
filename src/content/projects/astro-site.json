@@ -1,8 +1,0 @@
-{
-  "title": "Astro 个人网站",
-  "description": "我的第一个 Astro 项目，包含首页、公共布局、导航组件和响应式页面样式。",
-  "technologies": ["Astro", "HTML", "CSS", "JavaScript"],
-  "status": "已上线",
-  "href": "/",
-  "order": 1
-}

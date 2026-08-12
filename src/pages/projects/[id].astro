@@ -1,5 +1,5 @@
 ---
-import { getCollection, type CollectionEntry } from "astro:content";
+import { getCollection, render, type CollectionEntry } from "astro:content";
 
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import Header from "../../components/Header.astro";
@@ -25,6 +25,8 @@ interface Props {
 const { project } = Astro.props;
 
 const { title, description, technologies, status, href } = project.data;
+
+const { Content } = await render(project);
 ---
 
 <BaseLayout title={`${title} | William 的网站`} description={description}>
@@ -34,66 +36,53 @@ const { title, description, technologies, status, href } = project.data;
     <a class="back-link" href="/projects"> ← 返回项目列表 </a>
 
     <section class="project-hero">
-      <div class="project-heading">
-        <p class="label">PROJECT DETAIL</p>
+      <p class="label">PROJECT CASE STUDY</p>
 
-        <div class="title-row">
-          <h1>{title}</h1>
+      <div class="title-row">
+        <h1>
+          {title}
+        </h1>
 
-          <span class="status">
-            {status}
-          </span>
-        </div>
-
-        <p class="description">
-          {description}
-        </p>
+        <span class="status">
+          {status}
+        </span>
       </div>
+
+      <p class="description">
+        {description}
+      </p>
+
+      <ul class="technology-list" aria-label={`${title} 使用的技术`}>
+        {technologies.map((technology) => <li>{technology}</li>)}
+      </ul>
+
+      {
+        href ? (
+          <a class="project-button" href={href}>
+            打开项目
+            <span aria-hidden="true">→</span>
+          </a>
+        ) : (
+          <p class="unavailable">当前项目暂未开放。</p>
+        )
+      }
     </section>
 
-    <section class="project-content" aria-label="项目详细信息">
-      <div class="content-card">
-        <p class="section-label">TECHNOLOGIES</p>
+    <div class="divider"></div>
 
-        <h2>使用技术</h2>
-
-        <ul class="technology-list" aria-label={`${title} 使用的技术`}>
-          {technologies.map((technology) => <li>{technology}</li>)}
-        </ul>
-      </div>
-
-      <div class="content-card">
-        <p class="section-label">STATUS</p>
-
-        <h2>项目状态</h2>
-
-        <p class="status-description">
-          当前状态：
-          <strong>{status}</strong>
-        </p>
-
-        {
-          href ? (
-            <a class="project-button" href={href}>
-              打开项目
-              <span aria-hidden="true">→</span>
-            </a>
-          ) : (
-            <p class="unavailable">当前项目暂未开放。</p>
-          )
-        }
-      </div>
-    </section>
+    <article class="case-study">
+      <Content />
+    </article>
   </main>
 </BaseLayout>
 
 <style>
   main {
-    width: min(1000px, calc(100% - 40px));
+    width: min(900px, calc(100% - 40px));
 
     margin: 0 auto;
 
-    padding: 60px 0 100px;
+    padding: 60px 0 110px;
   }
 
   .back-link {
@@ -120,8 +109,7 @@ const { title, description, technologies, status, href } = project.data;
     max-width: 850px;
   }
 
-  .label,
-  .section-label {
+  .label {
     margin: 0;
 
     color: var(--color-accent);
@@ -173,6 +161,8 @@ const { title, description, technologies, status, href } = project.data;
     font-size: 13px;
 
     font-weight: 800;
+
+    white-space: nowrap;
   }
 
   .description {
@@ -187,36 +177,6 @@ const { title, description, technologies, status, href } = project.data;
     line-height: 1.8;
   }
 
-  .project-content {
-    display: grid;
-
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-
-    gap: 24px;
-
-    margin-top: 64px;
-  }
-
-  .content-card {
-    padding: 30px;
-
-    border: 1px solid var(--color-border);
-
-    border-radius: 20px;
-
-    background: var(--color-surface);
-
-    box-shadow: var(--shadow-card);
-  }
-
-  .content-card h2 {
-    margin: 12px 0 0;
-
-    color: var(--color-text);
-
-    font-size: 26px;
-  }
-
   .technology-list {
     display: flex;
 
@@ -224,7 +184,7 @@ const { title, description, technologies, status, href } = project.data;
 
     gap: 10px;
 
-    margin: 26px 0 0;
+    margin: 30px 0 0;
 
     padding: 0;
 
@@ -245,18 +205,6 @@ const { title, description, technologies, status, href } = project.data;
     font-weight: 700;
   }
 
-  .status-description {
-    margin: 26px 0 0;
-
-    color: var(--color-muted);
-
-    line-height: 1.7;
-  }
-
-  .status-description strong {
-    color: var(--color-text);
-  }
-
   .project-button {
     display: inline-flex;
 
@@ -264,7 +212,7 @@ const { title, description, technologies, status, href } = project.data;
 
     gap: 8px;
 
-    margin-top: 28px;
+    margin-top: 32px;
 
     padding: 12px 18px;
 
@@ -290,18 +238,141 @@ const { title, description, technologies, status, href } = project.data;
   }
 
   .unavailable {
-    margin: 28px 0 0;
+    margin: 30px 0 0;
 
     color: var(--color-disabled);
 
     font-weight: 700;
   }
 
+  .divider {
+    height: 1px;
+
+    margin: 64px 0;
+
+    background: var(--color-border);
+  }
+
+  .case-study {
+    max-width: 760px;
+
+    color: var(--color-text);
+  }
+
+  .case-study :global(h2) {
+    margin: 64px 0 20px;
+
+    color: var(--color-text);
+
+    font-size: clamp(28px, 4vw, 36px);
+
+    line-height: 1.2;
+
+    letter-spacing: -0.025em;
+  }
+
+  .case-study :global(h2:first-child) {
+    margin-top: 0;
+  }
+
+  .case-study :global(h3) {
+    margin: 40px 0 16px;
+
+    color: var(--color-text);
+
+    font-size: 23px;
+
+    line-height: 1.3;
+  }
+
+  .case-study :global(p) {
+    margin: 0 0 22px;
+
+    color: var(--color-muted);
+
+    font-size: 18px;
+
+    line-height: 1.9;
+  }
+
+  .case-study :global(ul),
+  .case-study :global(ol) {
+    margin: 22px 0 28px;
+
+    padding-left: 24px;
+
+    color: var(--color-muted);
+
+    font-size: 18px;
+
+    line-height: 1.8;
+  }
+
+  .case-study :global(li) {
+    margin-bottom: 8px;
+  }
+
+  .case-study :global(strong) {
+    color: var(--color-text);
+
+    font-weight: 800;
+  }
+
+  .case-study :global(a) {
+    color: var(--color-accent);
+
+    font-weight: 700;
+
+    text-underline-offset: 4px;
+  }
+
+  .case-study :global(blockquote) {
+    margin: 30px 0;
+
+    padding: 4px 0 4px 22px;
+
+    border-left: 4px solid var(--color-accent);
+
+    color: var(--color-muted);
+  }
+
+  .case-study :global(code) {
+    padding: 2px 6px;
+
+    border-radius: 6px;
+
+    background: var(--color-subtle);
+
+    color: var(--color-text);
+
+    font-size: 0.9em;
+  }
+
+  .case-study :global(pre) {
+    overflow-x: auto;
+
+    margin: 28px 0;
+
+    padding: 20px;
+
+    border: 1px solid var(--color-border);
+
+    border-radius: 14px;
+
+    background: var(--color-subtle);
+  }
+
+  .case-study :global(pre code) {
+    padding: 0;
+
+    background: transparent;
+  }
+
   @media (max-width: 700px) {
     main {
-      width: min(100% - 24px, 1000px);
+      width: min(100% - 24px, 900px);
 
-      padding-top: 40px;
+      padding: 40px 0 80px;
     }
 
     .back-link {
@@ -322,14 +393,18 @@ const { title, description, technologies, status, href } = project.data;
       font-size: 18px;
     }
 
-    .project-content {
-      grid-template-columns: 1fr;
-
-      margin-top: 44px;
+    .divider {
+      margin: 48px 0;
     }
 
-    .content-card {
-      padding: 24px;
+    .case-study :global(h2) {
+      margin-top: 48px;
+    }
+
+    .case-study :global(p),
+    .case-study :global(ul),
+    .case-study :global(ol) {
+      font-size: 17px;
     }
   }
 </style>
