@@ -1,11 +1,9 @@
 import rss from "@astrojs/rss";
 
-import { getCollection } from "astro:content";
+import { getPublishedBlogPosts } from "../lib/blog";
 
 export async function GET(context) {
-  const posts = (
-    await getCollection("blog", ({ data }) => data.draft !== true)
-  ).sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+  const posts = await getPublishedBlogPosts();
 
   return rss({
     title: "William Chan 的博客",
