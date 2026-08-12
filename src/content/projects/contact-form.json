@@ -1,0 +1,7 @@
+{
+  "title": "联系表单",
+  "description": "下一阶段将制作的功能，用于学习表单输入、验证和提交状态处理。",
+  "technologies": ["HTML Form", "JavaScript", "表单验证"],
+  "status": "规划中",
+  "order": 3
+}
