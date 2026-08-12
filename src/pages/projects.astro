@@ -5,9 +5,9 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 import Header from "../components/Header.astro";
 import ProjectCard from "../components/ProjectCard.astro";
 
-const projects = (await getCollection("projects"))
-  .sort((a, b) => a.data.order - b.data.order)
-  .map((project) => project.data);
+const projects = (await getCollection("projects")).sort(
+  (a, b) => a.data.order - b.data.order,
+);
 ---
 
 <BaseLayout
@@ -29,7 +29,18 @@ const projects = (await getCollection("projects"))
     </section>
 
     <section class="project-grid" aria-label="项目列表">
-      {projects.map((project) => <ProjectCard {...project} />)}
+      {
+        projects.map((project) => (
+          <ProjectCard
+            id={project.id}
+            title={project.data.title}
+            description={project.data.description}
+            technologies={project.data.technologies}
+            status={project.data.status}
+            href={project.data.href}
+          />
+        ))
+      }
     </section>
   </main>
 </BaseLayout>
