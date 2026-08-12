@@ -1,19 +1,11 @@
 ---
-import { getCollection } from "astro:content";
-
 import BaseLayout from "../layouts/BaseLayout.astro";
 import Header from "../components/Header.astro";
 import ProjectCard from "../components/ProjectCard.astro";
 
-const projects = (await getCollection("projects")).sort(
-  (a, b) => a.data.order - b.data.order,
-);
+import { getProjectIndexData } from "../lib/projects";
 
-const statuses = [...new Set(projects.map((project) => project.data.status))];
-
-const technologies = [
-  ...new Set(projects.flatMap((project) => project.data.technologies)),
-].sort((a, b) => a.localeCompare(b, "zh-CN"));
+const { projects, statuses, technologies } = await getProjectIndexData();
 ---
 
 <BaseLayout
