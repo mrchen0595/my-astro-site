@@ -4,6 +4,8 @@ import { getCollection, render, type CollectionEntry } from "astro:content";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import Header from "../../components/Header.astro";
 
+import { createPageTitle } from "../../lib/seo";
+
 export async function getStaticPaths() {
   const projects = await getCollection("projects");
 
@@ -29,7 +31,7 @@ const { title, description, technologies, status, href } = project.data;
 const { Content } = await render(project);
 ---
 
-<BaseLayout title={`${title} | William 的网站`} description={description}>
+<BaseLayout title={createPageTitle(title)} description={description}>
   <Header />
 
   <main>
