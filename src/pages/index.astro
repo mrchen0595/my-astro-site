@@ -1,10 +1,13 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
 import Header from "../components/Header.astro";
+import StructuredData from "../components/StructuredData.astro";
 
 import { pageDescriptions } from "../config/site";
 
 import { createPageTitle } from "../lib/seo";
+
+import { createWebsiteStructuredData } from "../lib/structured-data";
 
 const features = [
   {
@@ -20,9 +23,15 @@ const features = [
     description: "可以使用 JavaScript 添加按钮交互。",
   },
 ];
+
+const siteUrl = new URL("/", Astro.site ?? Astro.url.origin).href;
+
+const websiteStructuredData = createWebsiteStructuredData(siteUrl);
 ---
 
 <BaseLayout title={createPageTitle()} description={pageDescriptions.home}>
+  <StructuredData data={websiteStructuredData} />
+
   <Header />
 
   <main>
