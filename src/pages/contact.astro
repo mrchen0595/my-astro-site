@@ -4,10 +4,12 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 import Header from "../components/Header.astro";
 
 import ContactForm from "../components/ContactForm.astro";
+
+import { createPageTitle } from "../lib/seo";
 ---
 
 <BaseLayout
-  title="联系 | William 的网站"
+  title={createPageTitle("联系")}
   description="通过联系表单向 William 留言"
 >
   <Header />

@@ -1,15 +1,25 @@
 ---
+import { getCollection } from "astro:content";
+
 import BaseLayout from "../layouts/BaseLayout.astro";
 import Header from "../components/Header.astro";
 import ProjectCard from "../components/ProjectCard.astro";
 
-import { getProjectIndexData } from "../lib/projects";
+import { createPageTitle } from "../lib/seo";
 
-const { projects, statuses, technologies } = await getProjectIndexData();
+const projects = (await getCollection("projects")).sort(
+  (a, b) => a.data.order - b.data.order,
+);
+
+const statuses = [...new Set(projects.map((project) => project.data.status))];
+
+const technologies = [
+  ...new Set(projects.flatMap((project) => project.data.technologies)),
+].sort((a, b) => a.localeCompare(b, "zh-CN"));
 ---
 
 <BaseLayout
-  title="项目 | William 的网站"
+  title={createPageTitle("项目")}
   description="William 的前端学习项目展示"
 >
   <Header />
