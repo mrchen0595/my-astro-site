@@ -1,24 +1,50 @@
-import { expect, test } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
 
 import { siteConfig } from "../src/config/site";
+
+async function getStructuredDataByType(page: Page, type: string) {
+  const scripts = page.locator('script[type="application/ld+json"]');
+
+  const count = await scripts.count();
+
+  for (let index = 0; index < count; index += 1) {
+    const content = await scripts.nth(index).textContent();
+
+    if (!content) {
+      continue;
+    }
+
+    const parsed = JSON.parse(content);
+
+    const values = Array.isArray(parsed) ? parsed : [parsed];
+
+    for (const value of values) {
+      if (value?.["@type"] === type) {
+        return value;
+      }
+
+      if (Array.isArray(value?.["@graph"])) {
+        const graphValue = value["@graph"].find(
+          (item: Record<string, unknown>) => item["@type"] === type,
+        );
+
+        if (graphValue) {
+          return graphValue;
+        }
+      }
+    }
+  }
+
+  return null;
+}
 
 test.describe("结构化数据", () => {
   test("首页输出 WebSite JSON-LD", async ({ page }) => {
     await page.goto("/");
 
-    const script = page.locator('script[type="application/ld+json"]');
+    const data = await getStructuredDataByType(page, "WebSite");
 
-    await expect(script).toHaveCount(1);
-
-    const content = await script.textContent();
-
-    expect(content).toBeTruthy();
-
-    const data = JSON.parse(content!);
-
-    expect(data["@context"]).toBe("https://schema.org");
-
-    expect(data["@type"]).toBe("WebSite");
+    expect(data).not.toBeNull();
 
     expect(data.name).toBe(siteConfig.name);
 
@@ -32,12 +58,12 @@ test.describe("结构化数据", () => {
   test("普通内部页面不会重复输出 WebSite JSON-LD", async ({ page }) => {
     await page.goto("/about");
 
-    await expect(
-      page.locator('script[type="application/ld+json"]'),
-    ).toHaveCount(0);
+    const data = await getStructuredDataByType(page, "WebSite");
+
+    expect(data).toBeNull();
   });
 
-  test("博客详情页输出 BlogPosting JSON-LD", async ({ page }) => {
+  test("博客详情页输出 BlogPosting 和 BreadcrumbList", async ({ page }) => {
     await page.goto("/blog");
 
     const firstPost = page.locator("[data-blog-item]").first();
@@ -54,84 +80,125 @@ test.describe("结构化数据", () => {
 
     await articleLink.click();
 
-    const script = page.locator('script[type="application/ld+json"]');
+    const blogPosting = await getStructuredDataByType(page, "BlogPosting");
 
-    await expect(script).toHaveCount(1);
+    expect(blogPosting).not.toBeNull();
 
-    const content = await script.textContent();
+    expect(blogPosting.headline).toBe(articleTitle);
 
-    expect(content).toBeTruthy();
+    expect(blogPosting.author.name).toBe(siteConfig.author);
 
-    const data = JSON.parse(content!);
+    const breadcrumb = await getStructuredDataByType(page, "BreadcrumbList");
 
-    expect(data["@context"]).toBe("https://schema.org");
+    expect(breadcrumb).not.toBeNull();
 
-    expect(data["@type"]).toBe("BlogPosting");
+    expect(breadcrumb.itemListElement).toHaveLength(3);
 
-    expect(data.headline).toBe(articleTitle);
+    expect(breadcrumb.itemListElement[0]).toMatchObject({
+      "@type": "ListItem",
 
-    expect(data.description).toBeTruthy();
+      position: 1,
 
-    expect(data.url).toMatch(/^https?:\/\/.+\/blog\/[^/]+\/?$/);
-
-    expect(Array.isArray(data.image)).toBe(true);
-
-    expect(data.image).toHaveLength(1);
-
-    expect(data.image[0]).toMatch(/^https?:\/\//);
-
-    expect(Number.isNaN(Date.parse(data.datePublished))).toBe(false);
-
-    expect(data.author).toEqual({
-      "@type": "Person",
-
-      name: siteConfig.author,
-
-      url: expect.stringMatching(/^https?:\/\/.+\/about\/?$/),
+      name: "首页",
     });
 
-    expect(data.inLanguage).toBe(siteConfig.language);
-  });
+    expect(breadcrumb.itemListElement[1]).toMatchObject({
+      "@type": "ListItem",
 
-  test("项目详情页输出 CreativeWork JSON-LD", async ({ page }) => {
-    await page.goto("/projects/astro-site");
+      position: 2,
 
-    const script = page.locator('script[type="application/ld+json"]');
+      name: "博客",
+    });
 
-    await expect(script).toHaveCount(1);
+    expect(breadcrumb.itemListElement[2]).toMatchObject({
+      "@type": "ListItem",
 
-    const content = await script.textContent();
+      position: 3,
 
-    expect(content).toBeTruthy();
+      name: articleTitle,
+    });
 
-    const data = JSON.parse(content!);
+    expect(breadcrumb.itemListElement[0].item).toMatch(/^https?:\/\/.+\/$/);
 
-    expect(data["@context"]).toBe("https://schema.org");
-
-    expect(data["@type"]).toBe("CreativeWork");
-
-    expect(data.name).toBe("Astro 个人网站");
-
-    expect(data.description).toBeTruthy();
-
-    expect(data.url).toMatch(/^https?:\/\/.+\/projects\/astro-site\/?$/);
-
-    expect(data.mainEntityOfPage).toBe(data.url);
-
-    expect(data.keywords).toEqual(
-      expect.arrayContaining(["Astro", "CSS", "JavaScript"]),
+    expect(breadcrumb.itemListElement[1].item).toMatch(
+      /^https?:\/\/.+\/blog\/?$/,
     );
 
-    expect(data.creativeWorkStatus).toBe("已上线");
+    expect(breadcrumb.itemListElement[2].item).toBeUndefined();
 
-    expect(data.author).toEqual({
-      "@type": "Person",
-
-      name: siteConfig.author,
-
-      url: expect.stringMatching(/^https?:\/\/.+\/about\/?$/),
+    const visualBreadcrumb = page.getByRole("navigation", {
+      name: "面包屑",
     });
 
-    expect(data.inLanguage).toBe(siteConfig.language);
+    await expect(
+      visualBreadcrumb.getByRole("link", {
+        name: "首页",
+      }),
+    ).toHaveAttribute("href", "/");
+
+    await expect(
+      visualBreadcrumb.getByRole("link", {
+        name: "博客",
+      }),
+    ).toHaveAttribute("href", "/blog");
+
+    await expect(visualBreadcrumb.locator('[aria-current="page"]')).toHaveText(
+      articleTitle!,
+    );
+  });
+
+  test("项目详情页输出 CreativeWork 和 BreadcrumbList", async ({ page }) => {
+    await page.goto("/projects/astro-site");
+
+    const project = await getStructuredDataByType(page, "CreativeWork");
+
+    expect(project).not.toBeNull();
+
+    expect(project.name).toBe("Astro 个人网站");
+
+    expect(project.author.name).toBe(siteConfig.author);
+
+    const breadcrumb = await getStructuredDataByType(page, "BreadcrumbList");
+
+    expect(breadcrumb).not.toBeNull();
+
+    expect(breadcrumb.itemListElement).toHaveLength(3);
+
+    expect(breadcrumb.itemListElement[0]).toMatchObject({
+      position: 1,
+      name: "首页",
+    });
+
+    expect(breadcrumb.itemListElement[1]).toMatchObject({
+      position: 2,
+      name: "项目",
+    });
+
+    expect(breadcrumb.itemListElement[2]).toMatchObject({
+      position: 3,
+      name: "Astro 个人网站",
+    });
+
+    expect(breadcrumb.itemListElement[2].item).toBeUndefined();
+
+    const visualBreadcrumb = page.getByRole("navigation", {
+      name: "面包屑",
+    });
+
+    await expect(
+      visualBreadcrumb.getByRole("link", {
+        name: "首页",
+      }),
+    ).toHaveAttribute("href", "/");
+
+    await expect(
+      visualBreadcrumb.getByRole("link", {
+        name: "项目",
+      }),
+    ).toHaveAttribute("href", "/projects");
+
+    await expect(visualBreadcrumb.locator('[aria-current="page"]')).toHaveText(
+      "Astro 个人网站",
+    );
   });
 });

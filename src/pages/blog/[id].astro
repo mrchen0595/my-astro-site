@@ -11,6 +11,8 @@ import BlogCover from "../../components/BlogCover.astro";
 
 import StructuredData from "../../components/StructuredData.astro";
 
+import Breadcrumbs from "../../components/Breadcrumbs.astro";
+
 import { createPageTitle } from "../../lib/seo";
 
 import { createBlogPostingStructuredData } from "../../lib/structured-data";
@@ -78,6 +80,22 @@ const blogPostingStructuredData = createBlogPostingStructuredData({
 
   authorUrl: authorURL,
 });
+
+const breadcrumbItems = [
+  {
+    name: "首页",
+    href: "/",
+  },
+
+  {
+    name: "博客",
+    href: "/blog",
+  },
+
+  {
+    name: post.data.title,
+  },
+];
 ---
 
 <BaseLayout
@@ -94,6 +112,8 @@ const blogPostingStructuredData = createBlogPostingStructuredData({
   <Header />
 
   <main class="article-page">
+    <Breadcrumbs items={breadcrumbItems} />
+
     <article class="article-shell">
       <a class="back-link" href="/blog"> ← 返回博客 </a>
 

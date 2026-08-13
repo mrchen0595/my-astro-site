@@ -4,6 +4,7 @@ import { getCollection, render, type CollectionEntry } from "astro:content";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import Header from "../../components/Header.astro";
 import StructuredData from "../../components/StructuredData.astro";
+import Breadcrumbs from "../../components/Breadcrumbs.astro";
 
 import { createPageTitle } from "../../lib/seo";
 
@@ -51,6 +52,22 @@ const projectStructuredData = createProjectStructuredData({
 
   authorUrl: authorURL,
 });
+
+const breadcrumbItems = [
+  {
+    name: "首页",
+    href: "/",
+  },
+
+  {
+    name: "项目",
+    href: "/projects",
+  },
+
+  {
+    name: title,
+  },
+];
 ---
 
 <BaseLayout title={createPageTitle(title)} description={description}>
@@ -59,6 +76,8 @@ const projectStructuredData = createProjectStructuredData({
   <Header />
 
   <main>
+    <Breadcrumbs items={breadcrumbItems} />
+
     <a class="back-link" href="/projects"> ← 返回项目列表 </a>
 
     <section class="project-hero">

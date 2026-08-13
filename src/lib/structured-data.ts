@@ -32,6 +32,12 @@ export interface ProjectStructuredDataInput {
   authorUrl: string;
 }
 
+export interface BreadcrumbItem {
+  name: string;
+
+  href?: string;
+}
+
 /**
  * 安全地把结构化数据转换成
  * 可以写入 JSON-LD script 的字符串。
@@ -99,7 +105,7 @@ export function createBlogPostingStructuredData(
 }
 
 /**
- * 项目案例页 CreativeWork JSON-LD。
+ * 项目详情页 CreativeWork JSON-LD。
  */
 export function createProjectStructuredData(
   input: ProjectStructuredDataInput,
@@ -130,5 +136,37 @@ export function createProjectStructuredData(
     },
 
     inLanguage: siteConfig.language,
+  };
+}
+
+/**
+ * 页面层级 BreadcrumbList JSON-LD。
+ */
+export function createBreadcrumbStructuredData(
+  items: BreadcrumbItem[],
+  baseUrl: string,
+): StructuredData {
+  return {
+    "@context": "https://schema.org",
+
+    "@type": "BreadcrumbList",
+
+    itemListElement: items.map((item, index) => {
+      const isLast = index === items.length - 1;
+
+      return {
+        "@type": "ListItem",
+
+        position: index + 1,
+
+        name: item.name,
+
+        ...(!isLast && item.href
+          ? {
+              item: new URL(item.href, baseUrl).href,
+            }
+          : {}),
+      };
+    }),
   };
 }
