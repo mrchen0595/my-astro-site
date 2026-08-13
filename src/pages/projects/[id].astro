@@ -3,8 +3,11 @@ import { getCollection, render, type CollectionEntry } from "astro:content";
 
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import Header from "../../components/Header.astro";
+import StructuredData from "../../components/StructuredData.astro";
 
 import { createPageTitle } from "../../lib/seo";
+
+import { createProjectStructuredData } from "../../lib/structured-data";
 
 export async function getStaticPaths() {
   const projects = await getCollection("projects");
@@ -29,9 +32,30 @@ const { project } = Astro.props;
 const { title, description, technologies, status, href } = project.data;
 
 const { Content } = await render(project);
+
+const baseURL = Astro.site ?? Astro.url.origin;
+
+const projectPageURL = new URL(`/projects/${project.id}`, baseURL).href;
+
+const authorURL = new URL("/about", baseURL).href;
+
+const projectStructuredData = createProjectStructuredData({
+  title,
+  description,
+
+  pageUrl: projectPageURL,
+
+  technologies,
+
+  status,
+
+  authorUrl: authorURL,
+});
 ---
 
 <BaseLayout title={createPageTitle(title)} description={description}>
+  <StructuredData data={projectStructuredData} />
+
   <Header />
 
   <main>
