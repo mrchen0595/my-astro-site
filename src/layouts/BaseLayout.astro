@@ -3,6 +3,8 @@ import Footer from "../components/Footer.astro";
 
 import { siteConfig } from "../config/site";
 
+import { createCanonicalUrl, createSiteUrl, getBaseUrl } from "../lib/url";
+
 import "../styles/global.css";
 
 import type { ImageMetadata } from "astro";
@@ -41,7 +43,7 @@ const {
   imageAlt,
 } = Astro.props;
 
-const baseURL = Astro.site ?? Astro.url.origin;
+const baseURL = getBaseUrl(Astro.site, Astro.url.origin);
 
 const optimizedSocialImage = image
   ? await getImage({
@@ -58,12 +60,12 @@ const optimizedSocialImage = image
   : null;
 
 const socialImageURL = optimizedSocialImage
-  ? new URL(optimizedSocialImage.src, baseURL).href
+  ? createSiteUrl(optimizedSocialImage.src, baseURL)
   : null;
 
-const canonicalURL = new URL(Astro.url.pathname, baseURL);
+const canonicalURL = createCanonicalUrl(Astro.url.pathname, baseURL);
 
-const rssURL = new URL("/rss.xml", baseURL);
+const rssURL = createSiteUrl("/rss.xml", baseURL);
 
 const publishedISO = publishedTime?.toISOString();
 
@@ -131,7 +133,7 @@ const updatedISO = updatedTime?.toISOString();
 
     <!-- 规范网址 -->
 
-    <link rel="canonical" href={canonicalURL.href} />
+    <link rel="canonical" href={canonicalURL} />
 
     <!-- Sitemap 入口 -->
 
@@ -143,7 +145,7 @@ const updatedISO = updatedTime?.toISOString();
       rel="alternate"
       type="application/rss+xml"
       title={siteConfig.rssTitle}
-      href={rssURL.href}
+      href={rssURL}
     />
 
     {
@@ -168,7 +170,7 @@ const updatedISO = updatedTime?.toISOString();
 
     <meta property="og:type" content={pageType} />
 
-    <meta property="og:url" content={canonicalURL.href} />
+    <meta property="og:url" content={canonicalURL} />
 
     <meta property="og:locale" content={siteConfig.openGraphLocale} />
 
