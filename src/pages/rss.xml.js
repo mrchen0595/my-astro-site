@@ -2,13 +2,15 @@ import rss from "@astrojs/rss";
 
 import { getPublishedBlogPosts } from "../lib/blog";
 
+import { siteConfig } from "../config/site";
+
 export async function GET(context) {
   const posts = await getPublishedBlogPosts();
 
   return rss({
-    title: "William Chan 的博客",
+    title: siteConfig.rssTitle,
 
-    description: "William Chan 的 Astro 和前端开发学习记录",
+    description: siteConfig.description,
 
     site: context.site,
 
@@ -24,6 +26,6 @@ export async function GET(context) {
       link: `/blog/${post.id}`,
     })),
 
-    customData: "<language>zh-CN</language>",
+    customData: `<language>${siteConfig.language}</language>`,
   });
 }
