@@ -7,6 +7,8 @@ import BlogCard from "../../components/BlogCard.astro";
 
 import BlogFilters from "../../components/BlogFilters.astro";
 
+import { pageDescriptions } from "../../config/site";
+
 import { getBlogIndexData } from "../../lib/blog";
 
 import { createPageTitle } from "../../lib/seo";
@@ -14,10 +16,7 @@ import { createPageTitle } from "../../lib/seo";
 const { posts, tags } = await getBlogIndexData();
 ---
 
-<BaseLayout
-  title={createPageTitle("博客")}
-  description="William 的 Astro 和前端学习记录"
->
+<BaseLayout title={createPageTitle("博客")} description={pageDescriptions.blog}>
   <Header />
 
   <main class="blog-page">

@@ -5,12 +5,14 @@ import Header from "../components/Header.astro";
 
 import ContactForm from "../components/ContactForm.astro";
 
+import { pageDescriptions } from "../config/site";
+
 import { createPageTitle } from "../lib/seo";
 ---
 
 <BaseLayout
   title={createPageTitle("联系")}
-  description="通过联系表单向 William 留言"
+  description={pageDescriptions.contact}
 >
   <Header />
 
