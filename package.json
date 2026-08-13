@@ -22,7 +22,9 @@
     "quality": "npm run check && npm run check:e2e && npm run format:check && npm run build",
     "lighthouse": "npm run build && lhci autorun",
     "lighthouse:ci": "lhci autorun",
-    "lighthouse:open": "lhci open"
+    "lighthouse:open": "lhci open",
+    "test:unit": "vitest run",
+    "test:unit:watch": "vitest"
   },
   "dependencies": {
     "@astrojs/rss": "^4.0.19",
@@ -38,6 +40,7 @@
     "@types/node": "^26.1.2",
     "prettier": "3.9.6",
     "prettier-plugin-astro": "^0.14.1",
-    "typescript": "^6.0.3"
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.10"
   }
 }
