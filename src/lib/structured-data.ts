@@ -18,6 +18,20 @@ export interface BlogPostingStructuredDataInput {
   authorUrl: string;
 }
 
+export interface ProjectStructuredDataInput {
+  title: string;
+
+  description: string;
+
+  pageUrl: string;
+
+  technologies: string[];
+
+  status: string;
+
+  authorUrl: string;
+}
+
 /**
  * 安全地把结构化数据转换成
  * 可以写入 JSON-LD script 的字符串。
@@ -71,6 +85,41 @@ export function createBlogPostingStructuredData(
           dateModified: input.dateModified.toISOString(),
         }
       : {}),
+
+    author: {
+      "@type": "Person",
+
+      name: siteConfig.author,
+
+      url: input.authorUrl,
+    },
+
+    inLanguage: siteConfig.language,
+  };
+}
+
+/**
+ * 项目案例页 CreativeWork JSON-LD。
+ */
+export function createProjectStructuredData(
+  input: ProjectStructuredDataInput,
+): StructuredData {
+  return {
+    "@context": "https://schema.org",
+
+    "@type": "CreativeWork",
+
+    name: input.title,
+
+    description: input.description,
+
+    url: input.pageUrl,
+
+    mainEntityOfPage: input.pageUrl,
+
+    keywords: input.technologies,
+
+    creativeWorkStatus: input.status,
 
     author: {
       "@type": "Person",

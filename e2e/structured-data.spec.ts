@@ -92,4 +92,46 @@ test.describe("结构化数据", () => {
 
     expect(data.inLanguage).toBe(siteConfig.language);
   });
+
+  test("项目详情页输出 CreativeWork JSON-LD", async ({ page }) => {
+    await page.goto("/projects/astro-site");
+
+    const script = page.locator('script[type="application/ld+json"]');
+
+    await expect(script).toHaveCount(1);
+
+    const content = await script.textContent();
+
+    expect(content).toBeTruthy();
+
+    const data = JSON.parse(content!);
+
+    expect(data["@context"]).toBe("https://schema.org");
+
+    expect(data["@type"]).toBe("CreativeWork");
+
+    expect(data.name).toBe("Astro 个人网站");
+
+    expect(data.description).toBeTruthy();
+
+    expect(data.url).toMatch(/^https?:\/\/.+\/projects\/astro-site\/?$/);
+
+    expect(data.mainEntityOfPage).toBe(data.url);
+
+    expect(data.keywords).toEqual(
+      expect.arrayContaining(["Astro", "CSS", "JavaScript"]),
+    );
+
+    expect(data.creativeWorkStatus).toBe("已上线");
+
+    expect(data.author).toEqual({
+      "@type": "Person",
+
+      name: siteConfig.author,
+
+      url: expect.stringMatching(/^https?:\/\/.+\/about\/?$/),
+    });
+
+    expect(data.inLanguage).toBe(siteConfig.language);
+  });
 });
