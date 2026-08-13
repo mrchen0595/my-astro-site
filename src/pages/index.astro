@@ -2,6 +2,8 @@
 import BaseLayout from "../layouts/BaseLayout.astro";
 import Header from "../components/Header.astro";
 
+import { pageDescriptions } from "../config/site";
+
 import { createPageTitle } from "../lib/seo";
 
 const features = [
@@ -20,7 +22,7 @@ const features = [
 ];
 ---
 
-<BaseLayout title={createPageTitle()} description="我的第一个本地 Astro 网站">
+<BaseLayout title={createPageTitle()} description={pageDescriptions.home}>
   <Header />
 
   <main>

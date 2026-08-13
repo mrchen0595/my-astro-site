@@ -1,24 +1,28 @@
 import { expect, test } from "@playwright/test";
 
-import { siteConfig } from "../src/config/site";
+import { pageDescriptions, siteConfig } from "../src/config/site";
 
 import { createPageTitle } from "../src/lib/seo";
 
 test.describe("SEO 元数据", () => {
-  test("首页使用统一的网站标题和基础元数据", async ({ page }) => {
+  test("首页使用统一的网站标题和元数据", async ({ page }) => {
     await page.goto("/");
 
     await expect(page).toHaveTitle(siteConfig.name);
 
     await expect(page.locator('meta[name="description"]')).toHaveAttribute(
       "content",
-      "我的第一个本地 Astro 网站",
+      pageDescriptions.home,
     );
 
     await expect(page.locator('meta[property="og:title"]')).toHaveAttribute(
       "content",
       siteConfig.name,
     );
+
+    await expect(
+      page.locator('meta[property="og:description"]'),
+    ).toHaveAttribute("content", pageDescriptions.home);
 
     await expect(page.locator('meta[property="og:site_name"]')).toHaveAttribute(
       "content",
@@ -35,45 +39,68 @@ test.describe("SEO 元数据", () => {
     {
       path: "/about",
       title: "关于",
+      description: pageDescriptions.about,
     },
+
     {
       path: "/contact",
       title: "联系",
+      description: pageDescriptions.contact,
     },
+
     {
       path: "/projects",
       title: "项目",
+      description: pageDescriptions.projects,
     },
+
     {
       path: "/blog",
       title: "博客",
+      description: pageDescriptions.blog,
     },
   ];
 
   for (const staticPage of staticPages) {
-    test(`${staticPage.title}页面使用统一标题`, async ({ page }) => {
+    test(`${staticPage.title}页面使用统一 SEO 元数据`, async ({ page }) => {
       await page.goto(staticPage.path);
 
-      await expect(page).toHaveTitle(createPageTitle(staticPage.title));
+      const expectedTitle = createPageTitle(staticPage.title);
+
+      await expect(page).toHaveTitle(expectedTitle);
+
+      await expect(page.locator('meta[name="description"]')).toHaveAttribute(
+        "content",
+        staticPage.description,
+      );
+
+      await expect(page.locator('meta[property="og:title"]')).toHaveAttribute(
+        "content",
+        expectedTitle,
+      );
+
+      await expect(
+        page.locator('meta[property="og:description"]'),
+      ).toHaveAttribute("content", staticPage.description);
 
       await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
         "href",
         new RegExp(`${staticPage.path.replace(/\//g, "\\/")}\\/?$`),
       );
-
-      await expect(page.locator('meta[property="og:title"]')).toHaveAttribute(
-        "content",
-        createPageTitle(staticPage.title),
-      );
     });
   }
 
-  test("项目详情页使用项目名称生成标题", async ({ page }) => {
+  test("项目详情页使用项目自己的 SEO 数据", async ({ page }) => {
     await page.goto("/projects/astro-site");
 
     const expectedTitle = createPageTitle("Astro 个人网站");
 
     await expect(page).toHaveTitle(expectedTitle);
+
+    await expect(page.locator('meta[name="description"]')).not.toHaveAttribute(
+      "content",
+      pageDescriptions.projects,
+    );
 
     await expect(page.locator('meta[property="og:title"]')).toHaveAttribute(
       "content",
@@ -86,7 +113,7 @@ test.describe("SEO 元数据", () => {
     );
   });
 
-  test("博客详情页使用文章标题并输出文章 SEO", async ({ page }) => {
+  test("博客详情页使用文章自己的 SEO 数据", async ({ page }) => {
     await page.goto("/blog");
 
     const firstPost = page.locator("[data-blog-item]").first();
@@ -104,6 +131,11 @@ test.describe("SEO 元数据", () => {
     await articleLink.click();
 
     await expect(page).toHaveTitle(createPageTitle(articleTitle!));
+
+    await expect(page.locator('meta[name="description"]')).not.toHaveAttribute(
+      "content",
+      pageDescriptions.blog,
+    );
 
     await expect(page.locator('meta[property="og:type"]')).toHaveAttribute(
       "content",
