@@ -23,8 +23,8 @@
     "lighthouse": "npm run build && lhci autorun",
     "lighthouse:ci": "lhci autorun",
     "lighthouse:open": "lhci open",
-    "test:unit": "vitest run",
-    "test:unit:watch": "vitest"
+    "test:unit": "vitest run --config vitest.config.ts",
+    "test:unit:watch": "vitest --config vitest.config.ts"
   },
   "dependencies": {
     "@astrojs/rss": "^4.0.19",

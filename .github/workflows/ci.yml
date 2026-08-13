@@ -43,6 +43,9 @@ jobs:
       - name: Check Playwright TypeScript
         run: npm run check:e2e
 
+      - name: Run unit tests
+        run: npm run test:unit
+
       - name: Check formatting
         run: npm run format:check
 

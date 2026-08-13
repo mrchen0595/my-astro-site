@@ -6,6 +6,14 @@ export default getViteConfig({
   test: {
     environment: "node",
 
-    include: ["src/**/*.test.ts"],
+    include: ["src/lib/__tests__/**/*.test.ts"],
+
+    exclude: [
+      "e2e/**",
+      "node_modules/**",
+      "dist/**",
+      "playwright-report/**",
+      "test-results/**",
+    ],
   },
 });
