@@ -1,6 +1,8 @@
 ---
 import Footer from "../components/Footer.astro";
 
+import { siteConfig } from "../config/site";
+
 import "../styles/global.css";
 
 import type { ImageMetadata } from "astro";
@@ -9,26 +11,33 @@ import { getImage } from "astro:assets";
 
 interface Props {
   title: string;
+
   description?: string;
 
   pageType?: "website" | "article";
 
   publishedTime?: Date;
+
   updatedTime?: Date;
 
   image?: ImageMetadata;
+
   imageAlt?: string;
 }
 
 const {
   title,
-  description = "William Chan 的个人网站和前端学习记录",
+
+  description = siteConfig.description,
 
   pageType = "website",
 
   publishedTime,
+
   updatedTime,
+
   image,
+
   imageAlt,
 } = Astro.props;
 
@@ -37,9 +46,13 @@ const baseURL = Astro.site ?? Astro.url.origin;
 const optimizedSocialImage = image
   ? await getImage({
       src: image,
+
       width: 1200,
+
       height: 630,
+
       format: "jpg",
+
       fit: "cover",
     })
   : null;
@@ -58,11 +71,12 @@ const updatedISO = updatedTime?.toISOString();
 ---
 
 <!doctype html>
-<html lang="zh-CN">
+<html lang={siteConfig.language}>
   <head>
     <script>
       (() => {
         const storageKey = "william-site-theme";
+
         const root = document.documentElement;
 
         let preference = "system";
@@ -94,6 +108,7 @@ const updatedISO = updatedTime?.toISOString();
             : preference;
 
         root.dataset.theme = resolvedTheme;
+
         root.dataset.themePreference = preference;
       })();
     </script>
@@ -101,28 +116,36 @@ const updatedISO = updatedTime?.toISOString();
     <meta charset="UTF-8" />
 
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+
     <meta name="color-scheme" content="light dark" />
-    <title>{title}</title>
+
+    <title>
+      {title}
+    </title>
 
     <meta name="description" content={description} />
 
-    <meta name="author" content="William Chan" />
+    <meta name="author" content={siteConfig.author} />
 
     <meta name="robots" content="index, follow" />
 
     <!-- 规范网址 -->
+
     <link rel="canonical" href={canonicalURL.href} />
 
     <!-- Sitemap 入口 -->
+
     <link rel="sitemap" href="/sitemap-index.xml" />
 
     <!-- RSS 自动发现 -->
+
     <link
       rel="alternate"
       type="application/rss+xml"
-      title="William Chan 的博客 RSS"
+      title={siteConfig.rssTitle}
       href={rssURL.href}
     />
+
     {
       socialImageURL && (
         <>
@@ -136,7 +159,8 @@ const updatedISO = updatedTime?.toISOString();
     }
 
     <!-- Open Graph -->
-    <meta property="og:site_name" content="William Chan 的个人网站" />
+
+    <meta property="og:site_name" content={siteConfig.name} />
 
     <meta property="og:title" content={title} />
 
@@ -146,9 +170,10 @@ const updatedISO = updatedTime?.toISOString();
 
     <meta property="og:url" content={canonicalURL.href} />
 
-    <meta property="og:locale" content="zh_CN" />
+    <meta property="og:locale" content={siteConfig.openGraphLocale} />
 
     <!-- 基础 Twitter / X 卡片 -->
+
     <meta name="twitter:card" content="summary" />
 
     <meta name="twitter:title" content={title} />
