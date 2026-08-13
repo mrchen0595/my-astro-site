@@ -2,6 +2,8 @@
 import BaseLayout from "../layouts/BaseLayout.astro";
 import Header from "../components/Header.astro";
 
+import { createPageTitle } from "../lib/seo";
+
 const features = [
   {
     title: "Astro 页面",
@@ -18,7 +20,7 @@ const features = [
 ];
 ---
 
-<BaseLayout title="我的 Astro 网站" description="我的第一个本地 Astro 网站">
+<BaseLayout title={createPageTitle()} description="我的第一个本地 Astro 网站">
   <Header />
 
   <main>
