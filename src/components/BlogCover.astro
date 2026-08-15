@@ -15,6 +15,11 @@ const width = variant === "article" ? 1200 : 720;
 
 const height = variant === "article" ? 630 : 405;
 
+const sizes =
+  variant === "article"
+    ? "(max-width: 600px) calc(100vw - 62px), (max-width: 860px) calc(100vw - 134px), 726px"
+    : "(max-width: 760px) calc(100vw - 26px), (max-width: 1140px) calc(50vw - 34px), 536px";
+
 const className = `blog-cover ${variant}`;
 ---
 
@@ -25,7 +30,8 @@ const className = `blog-cover ${variant}`;
   height={height}
   layout="constrained"
   fit="cover"
-  loading={eager ? "eager" : "lazy"}
+  sizes={sizes}
+  priority={eager}
   class={className}
 />
 
