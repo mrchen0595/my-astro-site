@@ -1,4 +1,9 @@
-<form id="contact-form" class="contact-form" novalidate>
+<form id="contact-form" class="contact-form" novalidate aria-busy="false">
+  <p class="required-note">
+    <span aria-hidden="true">*</span>
+    表示必填项。
+  </p>
+
   <div class="field">
     <label for="contact-name">
       姓名
@@ -17,7 +22,13 @@
       aria-describedby="contact-name-error"
     />
 
-    <p id="contact-name-error" class="field-error" aria-live="polite"></p>
+    <p
+      id="contact-name-error"
+      class="field-error"
+      aria-live="polite"
+      aria-atomic="true"
+    >
+    </p>
   </div>
 
   <div class="field">
@@ -37,7 +48,13 @@
       aria-describedby="contact-email-error"
     />
 
-    <p id="contact-email-error" class="field-error" aria-live="polite"></p>
+    <p
+      id="contact-email-error"
+      class="field-error"
+      aria-live="polite"
+      aria-atomic="true"
+    >
+    </p>
   </div>
 
   <div class="field">
@@ -76,8 +93,15 @@
       </p>
     </div>
 
-    <p id="contact-message-error" class="field-error" aria-live="polite"></p>
+    <p
+      id="contact-message-error"
+      class="field-error"
+      aria-live="polite"
+      aria-atomic="true"
+    >
+    </p>
   </div>
+
   <div class="website-field" aria-hidden="true">
     <label for="contact-website"> 网站 </label>
 
@@ -89,6 +113,7 @@
       autocomplete="off"
     />
   </div>
+
   <button id="submit-button" type="submit"> 提交表单 </button>
 
   <p class="demo-note">
@@ -96,242 +121,288 @@
     请不要填写密码、银行卡等敏感信息。
   </p>
 
-  <p id="form-status" class="form-status" role="status" aria-live="polite"></p>
+  <p
+    id="form-status"
+    class="form-status"
+    role="status"
+    aria-live="polite"
+    aria-atomic="true"
+  >
+  </p>
 </form>
 
 <script>
   type ValidatedField = HTMLInputElement | HTMLTextAreaElement;
 
-  const form = document.querySelector<HTMLFormElement>("#contact-form");
+  function getRequiredElement<T extends Element>(
+    root: ParentNode,
+    selector: string,
+  ): T {
+    const element = root.querySelector<T>(selector);
 
-  if (form) {
-    const fields = Array.from(
-      form.querySelectorAll<ValidatedField>("[data-validate]"),
-    );
-
-    const submitButton =
-      form.querySelector<HTMLButtonElement>("#submit-button");
-
-    const formStatus = form.querySelector<HTMLParagraphElement>("#form-status");
-
-    const messageField =
-      form.querySelector<HTMLTextAreaElement>("#contact-message");
-
-    const messageCount = form.querySelector<HTMLSpanElement>("#message-count");
-
-    function getErrorElement(field: ValidatedField): HTMLElement | null {
-      const describedBy = field.getAttribute("aria-describedby");
-
-      if (!describedBy) {
-        return null;
-      }
-
-      const errorId = describedBy
-        .split(" ")
-        .find((id) => id.endsWith("-error"));
-
-      return errorId ? document.getElementById(errorId) : null;
+    if (!element) {
+      throw new Error(`找不到必要的联系表单元素：${selector}`);
     }
 
-    function setCustomMessage(field: ValidatedField): void {
-      const value = field.value.trim();
-
-      field.setCustomValidity("");
-
-      if (!value) {
-        if (field.id === "contact-name") {
-          field.setCustomValidity("请输入姓名。");
-        }
-
-        if (field.id === "contact-email") {
-          field.setCustomValidity("请输入邮箱地址。");
-        }
-
-        if (field.id === "contact-message") {
-          field.setCustomValidity("请输入留言内容。");
-        }
-
-        return;
-      }
-
-      if (field.id === "contact-name" && value.length < 2) {
-        field.setCustomValidity("姓名至少需要 2 个字符。");
-        return;
-      }
-
-      if (field.id === "contact-email" && field.validity.typeMismatch) {
-        field.setCustomValidity("请输入有效的邮箱地址。");
-        return;
-      }
-
-      if (field.id === "contact-message" && value.length < 10) {
-        field.setCustomValidity("留言至少需要 10 个字符。");
-      }
-    }
-
-    function validateField(field: ValidatedField): boolean {
-      setCustomMessage(field);
-
-      const isValid = field.checkValidity();
-      const errorElement = getErrorElement(field);
-
-      field.setAttribute("aria-invalid", String(!isValid));
-
-      field.closest(".field")?.classList.toggle("has-error", !isValid);
-
-      if (errorElement) {
-        errorElement.textContent = isValid ? "" : field.validationMessage;
-      }
-
-      return isValid;
-    }
-
-    function clearFieldState(field: ValidatedField): void {
-      field.setCustomValidity("");
-      field.setAttribute("aria-invalid", "false");
-
-      field.closest(".field")?.classList.remove("has-error");
-
-      const errorElement = getErrorElement(field);
-
-      if (errorElement) {
-        errorElement.textContent = "";
-      }
-    }
-
-    fields.forEach((field) => {
-      field.addEventListener("blur", () => {
-        validateField(field);
-      });
-
-      field.addEventListener("input", () => {
-        if (field.getAttribute("aria-invalid") === "true") {
-          validateField(field);
-        }
-      });
-    });
-
-    messageField?.addEventListener("input", () => {
-      if (messageCount) {
-        messageCount.textContent = String(messageField.value.length);
-      }
-    });
-
-    form.addEventListener("submit", async (event) => {
-      event.preventDefault();
-
-      if (submitButton?.disabled) {
-        return;
-      }
-
-      const results = fields.map(validateField);
-
-      const allValid = results.every(Boolean);
-
-      if (!allValid) {
-        const firstInvalid = fields.find(
-          (field) => field.getAttribute("aria-invalid") === "true",
-        );
-
-        firstInvalid?.focus();
-
-        if (formStatus) {
-          formStatus.className = "form-status error";
-
-          formStatus.textContent = "表单中还有错误，请检查后重新提交。";
-        }
-
-        return;
-      }
-
-      const formData = new FormData(form);
-
-      const payload = Object.fromEntries(formData.entries());
-
-      if (submitButton) {
-        submitButton.disabled = true;
-        submitButton.textContent = "正在发送…";
-      }
-
-      if (formStatus) {
-        formStatus.className = "form-status";
-
-        formStatus.textContent = "正在连接邮件服务器…";
-      }
-
-      try {
-        const response = await fetch("/api/contact", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(payload),
-        });
-
-        const result = (await response.json().catch(() => null)) as {
-          ok?: boolean;
-          message?: string;
-        } | null;
-
-        if (!response.ok || !result?.ok) {
-          throw new Error(result?.message ?? "发送失败，请稍后重试。");
-        }
-
-        form.reset();
-
-        fields.forEach(clearFieldState);
-
-        if (messageCount) {
-          messageCount.textContent = "0";
-        }
-
-        if (formStatus) {
-          formStatus.className = "form-status success";
-
-          formStatus.textContent = result.message ?? "留言发送成功。";
-        }
-      } catch (error) {
-        const message =
-          error instanceof Error ? error.message : "发送失败，请稍后重试。";
-
-        if (formStatus) {
-          formStatus.className = "form-status error";
-
-          formStatus.textContent = message;
-        }
-      } finally {
-        if (submitButton) {
-          submitButton.disabled = false;
-          submitButton.textContent = "提交表单";
-        }
-      }
-    });
+    return element;
   }
+
+  const form = getRequiredElement<HTMLFormElement>(document, "#contact-form");
+
+  const fields = Array.from(
+    form.querySelectorAll<ValidatedField>("[data-validate]"),
+  );
+
+  const submitButton = getRequiredElement<HTMLButtonElement>(
+    form,
+    "#submit-button",
+  );
+
+  const formStatus = getRequiredElement<HTMLParagraphElement>(
+    form,
+    "#form-status",
+  );
+
+  const messageField = getRequiredElement<HTMLTextAreaElement>(
+    form,
+    "#contact-message",
+  );
+
+  const messageCount = getRequiredElement<HTMLSpanElement>(
+    form,
+    "#message-count",
+  );
+
+  function getErrorElement(field: ValidatedField): HTMLElement | null {
+    const describedBy = field.getAttribute("aria-describedby");
+
+    if (!describedBy) {
+      return null;
+    }
+
+    const errorId = describedBy.split(" ").find((id) => id.endsWith("-error"));
+
+    return errorId ? document.getElementById(errorId) : null;
+  }
+
+  function setCustomMessage(field: ValidatedField): void {
+    const value = field.value.trim();
+
+    field.setCustomValidity("");
+
+    if (!value) {
+      if (field.id === "contact-name") {
+        field.setCustomValidity("请输入姓名。");
+      }
+
+      if (field.id === "contact-email") {
+        field.setCustomValidity("请输入邮箱地址。");
+      }
+
+      if (field.id === "contact-message") {
+        field.setCustomValidity("请输入留言内容。");
+      }
+
+      return;
+    }
+
+    if (field.id === "contact-name" && value.length < 2) {
+      field.setCustomValidity("姓名至少需要 2 个字符。");
+
+      return;
+    }
+
+    if (field.id === "contact-email" && field.validity.typeMismatch) {
+      field.setCustomValidity("请输入有效的邮箱地址。");
+
+      return;
+    }
+
+    if (field.id === "contact-message" && value.length < 10) {
+      field.setCustomValidity("留言至少需要 10 个字符。");
+    }
+  }
+
+  function validateField(field: ValidatedField): boolean {
+    setCustomMessage(field);
+
+    const isValid = field.checkValidity();
+
+    const errorElement = getErrorElement(field);
+
+    field.setAttribute("aria-invalid", String(!isValid));
+
+    field.closest(".field")?.classList.toggle("has-error", !isValid);
+
+    if (errorElement) {
+      errorElement.textContent = isValid ? "" : field.validationMessage;
+    }
+
+    return isValid;
+  }
+
+  function clearFieldState(field: ValidatedField): void {
+    field.setCustomValidity("");
+
+    field.setAttribute("aria-invalid", "false");
+
+    field.closest(".field")?.classList.remove("has-error");
+
+    const errorElement = getErrorElement(field);
+
+    if (errorElement) {
+      errorElement.textContent = "";
+    }
+  }
+
+  function setSubmitting(isSubmitting: boolean): void {
+    form.setAttribute("aria-busy", String(isSubmitting));
+
+    submitButton.disabled = isSubmitting;
+
+    submitButton.textContent = isSubmitting ? "正在发送…" : "提交表单";
+  }
+
+  fields.forEach((field) => {
+    field.addEventListener("blur", () => {
+      validateField(field);
+    });
+
+    field.addEventListener("input", () => {
+      if (field.getAttribute("aria-invalid") === "true") {
+        validateField(field);
+      }
+    });
+  });
+
+  messageField.addEventListener("input", () => {
+    messageCount.textContent = String(messageField.value.length);
+  });
+
+  form.addEventListener("submit", async (event) => {
+    event.preventDefault();
+
+    if (submitButton.disabled) {
+      return;
+    }
+
+    const results = fields.map(validateField);
+
+    const allValid = results.every(Boolean);
+
+    if (!allValid) {
+      formStatus.className = "form-status error";
+
+      formStatus.textContent = "表单中还有错误，请检查后重新提交。";
+
+      const firstInvalid = fields.find(
+        (field) => field.getAttribute("aria-invalid") === "true",
+      );
+
+      firstInvalid?.focus();
+
+      return;
+    }
+
+    const formData = new FormData(form);
+
+    const payload = Object.fromEntries(formData.entries());
+
+    setSubmitting(true);
+
+    formStatus.className = "form-status";
+
+    formStatus.textContent = "正在连接邮件服务器…";
+
+    try {
+      const response = await fetch("/api/contact", {
+        method: "POST",
+
+        headers: {
+          "Content-Type": "application/json",
+        },
+
+        body: JSON.stringify(payload),
+      });
+
+      const result = (await response.json().catch(() => null)) as {
+        ok?: boolean;
+        message?: string;
+      } | null;
+
+      if (!response.ok || !result?.ok) {
+        throw new Error(result?.message ?? "发送失败，请稍后重试。");
+      }
+
+      form.reset();
+
+      fields.forEach(clearFieldState);
+
+      messageCount.textContent = "0";
+
+      formStatus.className = "form-status success";
+
+      formStatus.textContent = result.message ?? "留言发送成功。";
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "发送失败，请稍后重试。";
+
+      formStatus.className = "form-status error";
+
+      formStatus.textContent = message;
+    } finally {
+      setSubmitting(false);
+    }
+  });
 </script>
 
 <style>
   .contact-form {
     padding: 32px;
+
     border: 1px solid var(--color-border);
+
     border-radius: 22px;
+
     background: var(--color-surface);
+
     box-shadow: 0 18px 50px rgba(30, 35, 70, 0.07);
+  }
+
+  .required-note {
+    margin: 0 0 24px;
+
+    color: var(--color-muted);
+
+    font-size: 14px;
+  }
+
+  .required-note span {
+    color: var(--color-danger);
+
+    font-weight: 800;
   }
 
   .website-field {
     position: absolute;
+
     left: -10000px;
+
     width: 1px;
     height: 1px;
+
     overflow: hidden;
   }
+
   .field + .field {
     margin-top: 22px;
   }
 
   label {
     display: block;
+
     margin-bottom: 9px;
+
     font-weight: 800;
   }
 
@@ -342,12 +413,17 @@
   input,
   textarea {
     width: 100%;
+
     padding: 13px 14px;
+
     border: 1px solid var(--color-border);
+
     border-radius: 11px;
-    outline: none;
+
     background: var(--color-surface);
+
     color: var(--color-text);
+
     transition:
       border-color 150ms ease,
       box-shadow 150ms ease;
@@ -355,13 +431,16 @@
 
   textarea {
     min-height: 170px;
+
     resize: vertical;
+
     line-height: 1.7;
   }
 
-  input:focus,
-  textarea:focus {
+  input:focus-visible,
+  textarea:focus-visible {
     border-color: var(--color-accent);
+
     box-shadow: var(--focus-ring);
   }
 
@@ -370,25 +449,34 @@
     border-color: var(--color-danger);
   }
 
-  .has-error input:focus,
-  .has-error textarea:focus {
+  .has-error input:focus-visible,
+  .has-error textarea:focus-visible {
     box-shadow: 0 0 0 4px rgba(194, 65, 65, 0.12);
   }
 
   .field-error {
     min-height: 20px;
+
     margin: 7px 0 0;
+
     color: var(--color-danger);
+
     font-size: 14px;
+
     font-weight: 700;
   }
 
   .field-meta {
     display: flex;
+
     justify-content: space-between;
+
     gap: 16px;
+
     margin-top: 7px;
-    color: vvar(--color-muted);
+
+    color: var(--color-muted);
+
     font-size: 13px;
   }
 
@@ -398,14 +486,26 @@
 
   button {
     width: 100%;
+
     min-height: 50px;
+
     margin-top: 26px;
+
     border: 0;
+
     border-radius: 11px;
+
     background: var(--color-accent);
+
     color: var(--color-on-accent);
+
     font-weight: 800;
+
     cursor: pointer;
+
+    transition:
+      transform 150ms ease,
+      opacity 150ms ease;
   }
 
   button:hover:not(:disabled) {
@@ -414,22 +514,31 @@
 
   button:disabled {
     cursor: wait;
+
     opacity: 0.65;
   }
 
   .demo-note {
     margin: 14px 0 0;
-    color: vvar(--color-muted);
+
+    color: var(--color-muted);
+
     font-size: 13px;
+
     line-height: 1.6;
+
     text-align: center;
   }
 
   .form-status {
     min-height: 24px;
+
     margin: 18px 0 0;
+
     font-weight: 800;
+
     line-height: 1.6;
+
     text-align: center;
   }
 
