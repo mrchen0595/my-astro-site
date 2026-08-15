@@ -1,5 +1,7 @@
 import { siteConfig } from "../config/site";
 
+import { createSiteUrl } from "./url";
+
 export type StructuredData = Record<string, unknown>;
 
 export interface BlogPostingStructuredDataInput {
@@ -163,7 +165,7 @@ export function createBreadcrumbStructuredData(
 
         ...(!isLast && item.href
           ? {
-              item: new URL(item.href, baseUrl).href,
+              item: createSiteUrl(item.href, baseUrl),
             }
           : {}),
       };
