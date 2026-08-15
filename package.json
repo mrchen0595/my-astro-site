@@ -28,7 +28,8 @@
     "verify": "npm run quality && npm run test:e2e && npm run lighthouse",
     "test": "npm run test:unit",
     "test:all": "npm run test:unit && npm run test:e2e",
-    "check:code": "npm run check && npm run check:e2e && npm run format:check"
+    "check:code": "npm run check && npm run check:e2e && npm run format:check",
+    "test:a11y": "playwright test e2e/accessibility.spec.ts e2e/focus-visible.spec.ts e2e/contact.spec.ts e2e/semantics.spec.ts e2e/reduced-motion.spec.ts e2e/contrast-status.spec.ts e2e/target-size.spec.ts e2e/reflow.spec.ts e2e/axe-accessibility.spec.ts"
   },
   "dependencies": {
     "@astrojs/rss": "^4.0.19",
