@@ -2,7 +2,12 @@ import { expect, test, type Page } from "@playwright/test";
 
 import { siteConfig } from "../src/config/site";
 
-async function getStructuredDataByType(page: Page, type: string) {
+type StructuredDataValue = Record<string, any>;
+
+async function getStructuredDataByType(
+  page: Page,
+  type: string,
+): Promise<StructuredDataValue | null> {
   const scripts = page.locator('script[type="application/ld+json"]');
 
   const count = await scripts.count();
@@ -14,7 +19,18 @@ async function getStructuredDataByType(page: Page, type: string) {
       continue;
     }
 
-    const parsed = JSON.parse(content);
+    let parsed: StructuredDataValue | StructuredDataValue[];
+
+    try {
+      parsed = JSON.parse(content);
+    } catch {
+      /*
+       * 某个 JSON-LD script
+       * 无法解析时，不影响继续检查
+       * 页面中的其他 JSON-LD。
+       */
+      continue;
+    }
 
     const values = Array.isArray(parsed) ? parsed : [parsed];
 
@@ -25,7 +41,7 @@ async function getStructuredDataByType(page: Page, type: string) {
 
       if (Array.isArray(value?.["@graph"])) {
         const graphValue = value["@graph"].find(
-          (item: Record<string, unknown>) => item["@type"] === type,
+          (item: StructuredDataValue) => item?.["@type"] === type,
         );
 
         if (graphValue) {
@@ -38,13 +54,43 @@ async function getStructuredDataByType(page: Page, type: string) {
   return null;
 }
 
+/*
+ * 某些页面在完整 E2E 并行运行时，
+ * 浏览器可能需要极短时间才能完成
+ * 新页面 DOM / JSON-LD 的稳定状态。
+ *
+ * 因此这里使用 polling，
+ * 而不是只读取一次然后立即判定失败。
+ */
+async function waitForStructuredDataByType(
+  page: Page,
+  type: string,
+): Promise<StructuredDataValue> {
+  let result: StructuredDataValue | null = null;
+
+  await expect
+    .poll(
+      async () => {
+        result = await getStructuredDataByType(page, type);
+
+        return result;
+      },
+      {
+        timeout: 5000,
+
+        message: `页面应该输出 ${type} JSON-LD`,
+      },
+    )
+    .not.toBeNull();
+
+  return result!;
+}
+
 test.describe("结构化数据", () => {
   test("首页输出 WebSite JSON-LD", async ({ page }) => {
     await page.goto("/");
 
-    const data = await getStructuredDataByType(page, "WebSite");
-
-    expect(data).not.toBeNull();
+    const data = await waitForStructuredDataByType(page, "WebSite");
 
     expect(data.name).toBe(siteConfig.name);
 
@@ -76,21 +122,35 @@ test.describe("结构化数据", () => {
 
     const articleTitle = (await articleLink.textContent())?.trim();
 
+    const articleHref = await articleLink.getAttribute("href");
+
     expect(articleTitle).toBeTruthy();
 
-    await articleLink.click();
+    expect(articleHref).toBeTruthy();
 
-    const blogPosting = await getStructuredDataByType(page, "BlogPosting");
+    /*
+     * 这个测试的职责是验证
+     * Structured Data，
+     * 不是测试 Blog 卡片点击行为。
+     *
+     * 因此直接进入文章 URL，
+     * 避免把客户端点击导航时序
+     * 引入结构化数据测试。
+     */
+    await page.goto(articleHref!);
 
-    expect(blogPosting).not.toBeNull();
+    await expect(page).toHaveURL(/\/blog\/[^/]+\/?$/);
+
+    const blogPosting = await waitForStructuredDataByType(page, "BlogPosting");
 
     expect(blogPosting.headline).toBe(articleTitle);
 
     expect(blogPosting.author.name).toBe(siteConfig.author);
 
-    const breadcrumb = await getStructuredDataByType(page, "BreadcrumbList");
-
-    expect(breadcrumb).not.toBeNull();
+    const breadcrumb = await waitForStructuredDataByType(
+      page,
+      "BreadcrumbList",
+    );
 
     expect(breadcrumb.itemListElement).toHaveLength(3);
 
@@ -150,17 +210,16 @@ test.describe("结构化数据", () => {
   test("项目详情页输出 CreativeWork 和 BreadcrumbList", async ({ page }) => {
     await page.goto("/projects/astro-site");
 
-    const project = await getStructuredDataByType(page, "CreativeWork");
-
-    expect(project).not.toBeNull();
+    const project = await waitForStructuredDataByType(page, "CreativeWork");
 
     expect(project.name).toBe("Astro 个人网站");
 
     expect(project.author.name).toBe(siteConfig.author);
 
-    const breadcrumb = await getStructuredDataByType(page, "BreadcrumbList");
-
-    expect(breadcrumb).not.toBeNull();
+    const breadcrumb = await waitForStructuredDataByType(
+      page,
+      "BreadcrumbList",
+    );
 
     expect(breadcrumb.itemListElement).toHaveLength(3);
 
@@ -176,6 +235,7 @@ test.describe("结构化数据", () => {
 
     expect(breadcrumb.itemListElement[2]).toMatchObject({
       position: 3,
+
       name: "Astro 个人网站",
     });
 
