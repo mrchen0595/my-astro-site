@@ -22,6 +22,8 @@ export const pageDescriptions = {
   projects: "William 的前端学习项目、技术实践和项目案例展示。",
 
   blog: "William 的 Astro、前端开发和 Web 技术学习记录。",
+
+  search: "搜索 William 的博客文章、项目案例、技术标签和前端学习内容。",
 } as const;
 
 export const mainNavigation = [
@@ -38,6 +40,11 @@ export const mainNavigation = [
   {
     href: "/blog",
     label: "博客",
+  },
+
+  {
+    href: "/search",
+    label: "搜索",
   },
 
   {

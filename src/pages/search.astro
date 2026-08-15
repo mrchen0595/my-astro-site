@@ -2,6 +2,8 @@
 import BaseLayout from "../layouts/BaseLayout.astro";
 import Header from "../components/Header.astro";
 
+import { pageDescriptions } from "../config/site";
+
 import { createPageTitle } from "../lib/seo";
 
 import { getSearchIndex } from "../lib/search";
@@ -13,7 +15,7 @@ const serializedSearchIndex = JSON.stringify(searchIndex);
 
 <BaseLayout
   title={createPageTitle("搜索")}
-  description="搜索博客文章和项目案例"
+  description={pageDescriptions.search}
 >
   <Header />
 
