@@ -1,5 +1,6 @@
 ---
 import Footer from "../components/Footer.astro";
+import SkipLink from "../components/SkipLink.astro";
 
 import { siteConfig } from "../config/site";
 
@@ -131,15 +132,9 @@ const updatedISO = updatedTime?.toISOString();
 
     <meta name="robots" content="index, follow" />
 
-    <!-- 规范网址 -->
-
     <link rel="canonical" href={canonicalURL} />
 
-    <!-- Sitemap 入口 -->
-
     <link rel="sitemap" href="/sitemap-index.xml" />
-
-    <!-- RSS 自动发现 -->
 
     <link
       rel="alternate"
@@ -160,8 +155,6 @@ const updatedISO = updatedTime?.toISOString();
       )
     }
 
-    <!-- Open Graph -->
-
     <meta property="og:site_name" content={siteConfig.name} />
 
     <meta property="og:title" content={title} />
@@ -173,8 +166,6 @@ const updatedISO = updatedTime?.toISOString();
     <meta property="og:url" content={canonicalURL} />
 
     <meta property="og:locale" content={siteConfig.openGraphLocale} />
-
-    <!-- 基础 Twitter / X 卡片 -->
 
     <meta name="twitter:card" content="summary" />
 
@@ -196,6 +187,8 @@ const updatedISO = updatedTime?.toISOString();
   </head>
 
   <body>
+    <SkipLink />
+
     <slot />
 
     <Footer />
