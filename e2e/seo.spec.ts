@@ -59,6 +59,12 @@ test.describe("SEO 元数据", () => {
       title: "博客",
       description: pageDescriptions.blog,
     },
+
+    {
+      path: "/search",
+      title: "搜索",
+      description: pageDescriptions.search,
+    },
   ];
 
   for (const staticPage of staticPages) {
@@ -89,6 +95,15 @@ test.describe("SEO 元数据", () => {
       );
     });
   }
+
+  test("带查询参数的搜索页面仍使用统一 canonical", async ({ page }) => {
+    await page.goto("/search?q=Astro&type=project");
+
+    await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
+      "href",
+      /\/search\/?$/,
+    );
+  });
 
   test("项目详情页使用项目自己的 SEO 数据", async ({ page }) => {
     await page.goto("/projects/astro-site");
