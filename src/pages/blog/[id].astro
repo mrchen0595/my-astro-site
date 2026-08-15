@@ -17,6 +17,8 @@ import { createPageTitle } from "../../lib/seo";
 
 import { createBlogPostingStructuredData } from "../../lib/structured-data";
 
+import { createSiteUrl, getBaseUrl } from "../../lib/url";
+
 interface Props {
   post: CollectionEntry<"blog">;
 }
@@ -45,11 +47,11 @@ const formattedDate = new Intl.DateTimeFormat("zh-CN", {
   day: "numeric",
 }).format(post.data.pubDate);
 
-const baseURL = Astro.site ?? Astro.url.origin;
+const baseURL = getBaseUrl(Astro.site, Astro.url.origin);
 
-const articleURL = new URL(`/blog/${post.id}`, baseURL).href;
+const articleURL = createSiteUrl(`/blog/${post.id}`, baseURL);
 
-const authorURL = new URL("/about", baseURL).href;
+const authorURL = createSiteUrl("/about", baseURL);
 
 const structuredImage = await getImage({
   src: post.data.cover,
@@ -63,7 +65,7 @@ const structuredImage = await getImage({
   fit: "cover",
 });
 
-const structuredImageURL = new URL(structuredImage.src, baseURL).href;
+const structuredImageURL = createSiteUrl(structuredImage.src, baseURL);
 
 const blogPostingStructuredData = createBlogPostingStructuredData({
   title: post.data.title,
