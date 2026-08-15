@@ -24,6 +24,38 @@
  * Skip Link 跳转后的 main 是程序化焦点目标，
  * 不需要给整个主内容区域画一圈巨大 outline。
  */
+
 #main-content:focus {
   outline: none;
+}
+
+/*
+ * Reduced Motion
+ *
+ * 当用户通过操作系统或浏览器声明：
+ *
+ * prefers-reduced-motion: reduce
+ *
+ * 时，大幅缩短非必要 CSS 动画和过渡。
+ *
+ * 这里不删除元素、不改变功能，
+ * 只减少视觉运动。
+ */
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+
+    transition-duration: 0.01ms !important;
+    transition-delay: 0ms !important;
+  }
 }
