@@ -10,6 +10,8 @@ import { createPageTitle } from "../../lib/seo";
 
 import { createProjectStructuredData } from "../../lib/structured-data";
 
+import { createSiteUrl, getBaseUrl } from "../../lib/url";
+
 export async function getStaticPaths() {
   const projects = await getCollection("projects");
 
@@ -34,11 +36,11 @@ const { title, description, technologies, status, href } = project.data;
 
 const { Content } = await render(project);
 
-const baseURL = Astro.site ?? Astro.url.origin;
+const baseURL = getBaseUrl(Astro.site, Astro.url.origin);
 
-const projectPageURL = new URL(`/projects/${project.id}`, baseURL).href;
+const projectPageURL = createSiteUrl(`/projects/${project.id}`, baseURL);
 
-const authorURL = new URL("/about", baseURL).href;
+const authorURL = createSiteUrl("/about", baseURL);
 
 const projectStructuredData = createProjectStructuredData({
   title,
