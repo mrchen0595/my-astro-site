@@ -1,0 +1,29 @@
+/*
+ * 全站键盘焦点样式
+ *
+ * :focus-visible 主要在键盘导航时显示，
+ * 避免所有可交互组件各自定义不同的焦点样式。
+ */
+
+:where(
+  a[href],
+  button,
+  input,
+  select,
+  textarea,
+  summary,
+  [role="button"],
+  [role="link"],
+  [tabindex]:not([tabindex="-1"])
+):focus-visible {
+  outline: 3px solid var(--color-accent);
+  outline-offset: 3px;
+}
+
+/*
+ * Skip Link 跳转后的 main 是程序化焦点目标，
+ * 不需要给整个主内容区域画一圈巨大 outline。
+ */
+#main-content:focus {
+  outline: none;
+}
