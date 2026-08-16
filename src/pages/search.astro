@@ -5,12 +5,6 @@ import Header from "../components/Header.astro";
 import { pageDescriptions } from "../config/site";
 
 import { createPageTitle } from "../lib/seo";
-
-import { getSearchIndex } from "../lib/search";
-
-const searchIndex = await getSearchIndex();
-
-const serializedSearchIndex = JSON.stringify(searchIndex);
 ---
 
 <BaseLayout
@@ -28,11 +22,7 @@ const serializedSearchIndex = JSON.stringify(searchIndex);
       <p class="intro">搜索博客文章、项目案例、技术标签和关键词。</p>
     </section>
 
-    <section
-      class="search-panel"
-      data-search-app
-      data-search-index={serializedSearchIndex}
-    >
+    <section class="search-panel" data-search-app>
       <div class="search-controls">
         <div class="search-field">
           <label for="search-input"> 搜索内容 </label>
@@ -130,9 +120,37 @@ const serializedSearchIndex = JSON.stringify(searchIndex);
       "p",
     );
 
-    const searchIndex = JSON.parse(
-      app.dataset.searchIndex ?? "[]",
-    ) as SearchItem[];
+    let searchIndexPromise: Promise<SearchItem[]> | null = null;
+
+    let renderRequestId = 0;
+
+    function loadSearchIndex(): Promise<SearchItem[]> {
+      if (!searchIndexPromise) {
+        searchIndexPromise = fetch("/search-index.json")
+          .then(async (response) => {
+            if (!response.ok) {
+              throw new Error(
+                `Search index request failed: ${response.status}.`,
+              );
+            }
+
+            const data = (await response.json()) as SearchItem[];
+
+            if (!Array.isArray(data)) {
+              throw new Error("Search index response is not an array.");
+            }
+
+            return data;
+          })
+          .catch((error) => {
+            searchIndexPromise = null;
+
+            throw error;
+          });
+      }
+
+      return searchIndexPromise;
+    }
 
     function getTypeLabel(type: SearchItemType): string {
       return type === "blog" ? "博客" : "项目";
@@ -243,7 +261,19 @@ const serializedSearchIndex = JSON.stringify(searchIndex);
       emptyState.hidden = false;
     }
 
-    function renderSearch() {
+    function showSearchError() {
+      summary.textContent = "搜索暂时不可用";
+
+      emptyTitle.textContent = "无法加载搜索索引";
+
+      emptyDescription.textContent = "请稍后重试，或重新加载页面。";
+
+      emptyState.hidden = false;
+    }
+
+    async function renderSearch() {
+      const requestId = ++renderRequestId;
+
       const query = input.value.trim();
 
       const selectedType = typeSelect.value;
@@ -258,25 +288,45 @@ const serializedSearchIndex = JSON.stringify(searchIndex);
         return;
       }
 
-      let results = searchItems(searchIndex, query);
-
-      if (selectedType !== "all") {
-        results = results.filter((item) => item.type === selectedType);
-      }
-
-      if (results.length === 0) {
-        showEmptyState(query);
-
-        return;
-      }
-
-      summary.textContent = `找到 ${results.length} 个结果`;
+      summary.textContent = "正在搜索…";
 
       emptyState.hidden = true;
 
-      const cards = results.map(createResultCard);
+      try {
+        const searchIndex = await loadSearchIndex();
 
-      resultsContainer.append(...cards);
+        if (requestId !== renderRequestId) {
+          return;
+        }
+
+        let results = searchItems(searchIndex, query);
+
+        if (selectedType !== "all") {
+          results = results.filter((item) => item.type === selectedType);
+        }
+
+        if (results.length === 0) {
+          showEmptyState(query);
+
+          return;
+        }
+
+        summary.textContent = `找到 ${results.length} 个结果`;
+
+        emptyState.hidden = true;
+
+        const cards = results.map(createResultCard);
+
+        resultsContainer.append(...cards);
+      } catch (error) {
+        if (requestId !== renderRequestId) {
+          return;
+        }
+
+        console.error("Failed to load search index.", error);
+
+        showSearchError();
+      }
     }
 
     const initialParams = new URLSearchParams(window.location.search);
@@ -293,11 +343,15 @@ const serializedSearchIndex = JSON.stringify(searchIndex);
       typeSelect.value = initialType;
     }
 
-    input.addEventListener("input", renderSearch);
+    input.addEventListener("input", () => {
+      void renderSearch();
+    });
 
-    typeSelect.addEventListener("change", renderSearch);
+    typeSelect.addEventListener("change", () => {
+      void renderSearch();
+    });
 
-    renderSearch();
+    void renderSearch();
   }
 
   initSearch();
