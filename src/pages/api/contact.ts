@@ -6,6 +6,7 @@ import {
   normalizeContactRequest,
   validateContactSubmission,
 } from "../../lib/contact";
+import { buildContactEmail } from "../../lib/contact-email";
 
 export const prerender = false;
 
@@ -18,20 +19,6 @@ function jsonResponse(body: unknown, status = 200): Response {
       "Content-Type": "application/json; charset=utf-8",
       "Cache-Control": "no-store",
     },
-  });
-}
-
-function escapeHtml(value: string): string {
-  return value.replace(/[&<>"']/g, (character) => {
-    const entities: Record<string, string> = {
-      "&": "&amp;",
-      "<": "&lt;",
-      ">": "&gt;",
-      '"': "&quot;",
-      "'": "&#039;",
-    };
-
-    return entities[character];
   });
 }
 
@@ -80,13 +67,8 @@ export const POST: APIRoute = async ({ request }) => {
 
   const { submission, website } = normalizeContactRequest(body);
 
-  const { name, email, subject, message } = submission;
-
-  // 隐藏字段：正常用户不会填写。
-  // 自动化垃圾程序经常会填写它。
-  //
-  // 这里故意仍然由 route 决定 honeypot policy，
-  // 而不是把“机器人应该怎么办”塞进纯 validation。
+  // Honeypot policy 仍然由 route 决定。
+  // 正常用户不会填写这个隐藏字段。
   if (website) {
     return jsonResponse({
       ok: true,
@@ -108,7 +90,6 @@ export const POST: APIRoute = async ({ request }) => {
   }
 
   const apiKey = getSecret("RESEND_API_KEY");
-
   const contactToEmail = getSecret("CONTACT_TO_EMAIL");
 
   const contactFromEmail =
@@ -126,39 +107,18 @@ export const POST: APIRoute = async ({ request }) => {
     );
   }
 
-  const resend = new Resend(apiKey);
+  const emailContent = buildContactEmail(submission);
 
-  const safeName = escapeHtml(name);
-  const safeEmail = escapeHtml(email);
-  const safeSubject = escapeHtml(subject || "无主题");
-  const safeMessage = escapeHtml(message).replace(/\n/g, "<br />");
+  const resend = new Resend(apiKey);
 
   try {
     const { data, error } = await resend.emails.send({
       from: contactFromEmail,
       to: [contactToEmail],
-      replyTo: email,
-      subject: `[网站留言] ${subject || "无主题"}`,
-      text: [
-        `姓名：${name}`,
-        `邮箱：${email}`,
-        `主题：${subject || "无主题"}`,
-        "",
-        "留言：",
-        message,
-      ].join("\n"),
-      html: `
-          <h2>收到一条网站留言</h2>
-
-          <p><strong>姓名：</strong>${safeName}</p>
-          <p><strong>邮箱：</strong>${safeEmail}</p>
-          <p><strong>主题：</strong>${safeSubject}</p>
-
-          <hr />
-
-          <p><strong>留言内容：</strong></p>
-          <p>${safeMessage}</p>
-        `,
+      replyTo: emailContent.replyTo,
+      subject: emailContent.subject,
+      text: emailContent.text,
+      html: emailContent.html,
     });
 
     if (error) {
