@@ -281,6 +281,28 @@ test.describe("Target Size", () => {
       "博客标签链接",
     );
   });
+  test("博客分享与订阅控件具有足够点击区域", async ({ page }) => {
+    await page.goto("/blog/astro-learning-notes");
+
+    const articleActions = page.getByRole("region", {
+      name: "分享与订阅",
+    });
+
+    await expectMinimumTargetSize(
+      articleActions.getByRole("button", {
+        name: "分享文章",
+      }),
+      "分享文章按钮",
+    );
+
+    await expectMinimumTargetSize(
+      articleActions.getByRole("link", {
+        name: "订阅博客 RSS",
+      }),
+      "博客 RSS 订阅链接",
+    );
+  });
+
   test("博客 Breadcrumb 小目标之间具有足够间距", async ({ page }) => {
     await page.goto("/blog");
 

@@ -15,6 +15,8 @@ import Breadcrumbs from "../../components/Breadcrumbs.astro";
 
 import RelatedBlogPosts from "../../components/RelatedBlogPosts.astro";
 
+import ArticleActions from "../../components/ArticleActions.astro";
+
 import {
   createBlogTagSlug,
   getPublishedBlogPosts,
@@ -169,6 +171,8 @@ const breadcrumbItems = [
         <Content />
       </div>
     </article>
+
+    <ArticleActions title={post.data.title} url={articleURL} />
 
     <RelatedBlogPosts posts={relatedPosts} />
   </main>
