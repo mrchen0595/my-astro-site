@@ -109,16 +109,68 @@ test.describe("结构化数据", () => {
     expect(data).toBeNull();
   });
 
+  test("博客标签页输出 BreadcrumbList 和可见面包屑", async ({ page }) => {
+    await page.goto("/blog/tags/astro");
+
+    const breadcrumb = await waitForStructuredDataByType(
+      page,
+      "BreadcrumbList",
+    );
+
+    expect(breadcrumb).not.toBeNull();
+
+    expect(breadcrumb.itemListElement).toHaveLength(3);
+
+    expect(breadcrumb.itemListElement[0]).toMatchObject({
+      "@type": "ListItem",
+      position: 1,
+      name: "首页",
+    });
+
+    expect(breadcrumb.itemListElement[1]).toMatchObject({
+      "@type": "ListItem",
+      position: 2,
+      name: "博客",
+    });
+
+    expect(breadcrumb.itemListElement[2]).toMatchObject({
+      "@type": "ListItem",
+      position: 3,
+      name: "Astro",
+    });
+
+    expect(breadcrumb.itemListElement[2].item).toBeUndefined();
+
+    const visualBreadcrumb = page.getByRole("navigation", {
+      name: "面包屑",
+    });
+
+    await expect(
+      visualBreadcrumb.getByRole("link", {
+        name: "首页",
+        exact: true,
+      }),
+    ).toHaveAttribute("href", "/");
+
+    await expect(
+      visualBreadcrumb.getByRole("link", {
+        name: "博客",
+        exact: true,
+      }),
+    ).toHaveAttribute("href", "/blog");
+
+    await expect(visualBreadcrumb.locator('[aria-current="page"]')).toHaveText(
+      "Astro",
+    );
+  });
+
   test("博客详情页输出 BlogPosting 和 BreadcrumbList", async ({ page }) => {
     await page.goto("/blog");
 
-    const firstPost = page.locator("[data-blog-item]").first();
-
-    const articleLink = firstPost
-      .getByRole("heading", {
-        level: 2,
-      })
-      .getByRole("link");
+    const articleLink = page.getByRole("link", {
+      name: "我的 Astro 学习记录",
+      exact: true,
+    });
 
     const articleTitle = (await articleLink.textContent())?.trim();
 

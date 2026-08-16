@@ -5,15 +5,21 @@ import Header from "../../components/Header.astro";
 
 import BlogCard from "../../components/BlogCard.astro";
 
-import BlogFilters from "../../components/BlogFilters.astro";
+import BlogDiscovery from "../../components/BlogDiscovery.astro";
+
+import BlogPagination from "../../components/BlogPagination.astro";
 
 import { pageDescriptions } from "../../config/site";
 
-import { getBlogIndexData } from "../../lib/blog";
+import { getBlogIndexData, getBlogPageData } from "../../lib/blog";
 
 import { createPageTitle } from "../../lib/seo";
 
-const { posts, tags } = await getBlogIndexData();
+const { posts: allPosts, tags } = await getBlogIndexData();
+
+const page = getBlogPageData(allPosts, 1);
+
+const posts = page.posts;
 ---
 
 <BaseLayout title={createPageTitle("博客")} description={pageDescriptions.blog}>
@@ -37,7 +43,7 @@ const { posts, tags } = await getBlogIndexData();
     {
       posts.length > 0 ? (
         <>
-          <BlogFilters tags={tags} total={posts.length} />
+          <BlogDiscovery tags={tags} total={allPosts.length} />
 
           <section
             id="blog-results"
@@ -45,23 +51,12 @@ const { posts, tags } = await getBlogIndexData();
             aria-label="博客文章列表"
           >
             {posts.map((post) => (
-              <div
-                class="post-item"
-                data-blog-item
-                data-title={post.data.title}
-                data-description={post.data.description}
-                data-tags={JSON.stringify(post.data.tags)}
-              >
+              <div class="post-item">
                 <BlogCard post={post} />
               </div>
             ))}
           </section>
-
-          <section id="blog-empty-message" class="empty-state" hidden>
-            <h2>没有找到相关文章</h2>
-
-            <p>尝试更换关键词， 或选择其他标签。</p>
-          </section>
+          <BlogPagination page={page} />
         </>
       ) : (
         <p class="empty-message">目前还没有已发布的文章。</p>
@@ -149,34 +144,6 @@ const { posts, tags } = await getBlogIndexData();
     min-width: 0;
 
     height: 100%;
-  }
-
-  .post-item[hidden] {
-    display: none;
-  }
-
-  .empty-state {
-    margin-top: 34px;
-
-    padding: 48px 24px;
-
-    border: 1px dashed var(--color-border);
-
-    border-radius: 20px;
-
-    text-align: center;
-  }
-
-  .empty-state h2 {
-    margin: 0;
-
-    font-size: 25px;
-  }
-
-  .empty-state p {
-    margin: 12px 0 0;
-
-    color: var(--color-muted);
   }
 
   .empty-message {

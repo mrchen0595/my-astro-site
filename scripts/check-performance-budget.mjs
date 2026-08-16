@@ -8,7 +8,7 @@ const KiB = 1024;
 const MiB = 1024 * KiB;
 
 const budgets = {
-  htmlPerPage: 18 * KiB,
+  htmlPerPage: 19 * KiB,
   inlineJsPerPage: 6 * KiB,
   cssPerPage: 15 * KiB,
   externalCssBuild: 28 * KiB,

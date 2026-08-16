@@ -255,27 +255,39 @@ test.describe("Target Size", () => {
   test("博客标题链接具有足够点击区域", async ({ page }) => {
     await page.goto("/blog");
 
-    const firstPost = page.locator("[data-blog-item]").first();
-
-    const titleLink = firstPost
-      .getByRole("heading", {
-        level: 2,
-      })
-      .getByRole("link");
+    const titleLink = page.getByRole("link", {
+      name: "我的 Astro 学习记录",
+      exact: true,
+    });
 
     await expectMinimumTargetSize(titleLink, "博客标题链接");
   });
 
+  test("博客内容发现链接具有足够点击区域", async ({ page }) => {
+    await page.goto("/blog");
+
+    const searchLink = page.getByRole("link", {
+      name: /搜索全部博客/,
+    });
+
+    await expectMinimumTargetSize(searchLink, "博客全量搜索链接");
+
+    const tagNavigation = page.getByRole("navigation", {
+      name: "博客标签",
+    });
+
+    await expectAllTargetsHaveMinimumSize(
+      tagNavigation.getByRole("link"),
+      "博客标签链接",
+    );
+  });
   test("博客 Breadcrumb 小目标之间具有足够间距", async ({ page }) => {
     await page.goto("/blog");
 
-    const firstPost = page.locator("[data-blog-item]").first();
-
-    const articleLink = firstPost
-      .getByRole("heading", {
-        level: 2,
-      })
-      .getByRole("link");
+    const articleLink = page.getByRole("link", {
+      name: "我的 Astro 学习记录",
+      exact: true,
+    });
 
     await articleLink.click();
 
