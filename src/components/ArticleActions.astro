@@ -1,0 +1,276 @@
+---
+interface Props {
+  title: string;
+  url: string;
+}
+
+const { title, url } = Astro.props;
+---
+
+<section
+  class="article-actions"
+  aria-labelledby="article-actions-title"
+  data-article-actions
+  data-article-title={title}
+  data-article-url={url}
+>
+  <div class="article-actions-copy">
+    <p class="label">SHARE &amp; SUBSCRIBE</p>
+
+    <h2 id="article-actions-title">分享与订阅</h2>
+
+    <p>分享这篇文章，或通过 RSS 订阅后续更新。</p>
+  </div>
+
+  <div class="article-actions-buttons">
+    <button type="button" class="share-button" data-share-button>
+      分享文章
+    </button>
+
+    <a class="rss-link" href="/rss.xml" type="application/rss+xml">
+      订阅博客 RSS
+      <span aria-hidden="true">→</span>
+    </a>
+  </div>
+
+  <p class="share-status" data-share-status role="status" aria-live="polite">
+  </p>
+</section>
+
+<script>
+  function initArticleActions() {
+    const sections = document.querySelectorAll<HTMLElement>(
+      "[data-article-actions]",
+    );
+
+    for (const section of sections) {
+      const shareButton = section.querySelector<HTMLButtonElement>(
+        "[data-share-button]",
+      );
+
+      const status = section.querySelector<HTMLElement>("[data-share-status]");
+
+      const title = section.dataset.articleTitle;
+
+      const url = section.dataset.articleUrl;
+
+      if (!shareButton || !status || !title || !url) {
+        continue;
+      }
+
+      /*
+       * 保存经过类型收窄后的稳定引用。
+       *
+       * 这些值会在异步回调和嵌套函数中继续使用，
+       * 因此显式保存可以避免 TypeScript
+       * 把它们重新视为 null / undefined。
+       */
+      const shareButtonElement = shareButton;
+
+      const statusElement = status;
+
+      const articleTitle = title;
+
+      const articleUrl = url;
+
+      async function copyArticleUrl() {
+        if (!navigator.clipboard?.writeText) {
+          throw new Error("Clipboard API is unavailable.");
+        }
+
+        await navigator.clipboard.writeText(articleUrl);
+
+        statusElement.textContent = "文章链接已复制。";
+      }
+
+      shareButtonElement.addEventListener("click", async () => {
+        shareButtonElement.disabled = true;
+
+        shareButtonElement.setAttribute("aria-busy", "true");
+
+        statusElement.textContent = "";
+
+        try {
+          if (typeof navigator.share === "function") {
+            try {
+              await navigator.share({
+                title: articleTitle,
+                url: articleUrl,
+              });
+
+              statusElement.textContent = "文章已分享。";
+
+              return;
+            } catch (error) {
+              if (
+                error instanceof DOMException &&
+                error.name === "AbortError"
+              ) {
+                return;
+              }
+            }
+          }
+
+          await copyArticleUrl();
+        } catch (error) {
+          console.error("Unable to share article.", error);
+
+          statusElement.textContent =
+            "暂时无法分享，请复制浏览器地址栏中的文章链接。";
+        } finally {
+          shareButtonElement.disabled = false;
+
+          shareButtonElement.removeAttribute("aria-busy");
+        }
+      });
+    }
+  }
+
+  initArticleActions();
+</script>
+
+<style>
+  .article-actions {
+    margin-top: 32px;
+
+    padding: 28px;
+
+    border: 1px solid var(--color-border);
+
+    border-radius: 18px;
+
+    background: var(--color-surface);
+  }
+
+  .article-actions-copy {
+    max-width: 620px;
+  }
+
+  .label {
+    margin: 0;
+
+    color: var(--color-accent);
+
+    font-size: 12px;
+
+    font-weight: 800;
+
+    letter-spacing: 0.16em;
+  }
+
+  h2 {
+    margin: 10px 0 8px;
+
+    font-size: 26px;
+
+    line-height: 1.2;
+  }
+
+  .article-actions-copy > p:last-child {
+    margin: 0;
+
+    color: var(--color-muted);
+
+    line-height: 1.7;
+  }
+
+  .article-actions-buttons {
+    display: flex;
+
+    flex-wrap: wrap;
+
+    gap: 12px;
+
+    margin-top: 20px;
+  }
+
+  .share-button,
+  .rss-link {
+    display: inline-flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    min-height: 44px;
+
+    padding: 10px 16px;
+
+    border-radius: 10px;
+
+    font: inherit;
+
+    font-weight: 800;
+
+    text-decoration: none;
+  }
+
+  .share-button {
+    border: 1px solid var(--color-accent);
+
+    background: var(--color-accent);
+
+    color: var(--color-surface);
+
+    cursor: pointer;
+  }
+
+  .share-button:disabled {
+    cursor: wait;
+
+    opacity: 0.7;
+  }
+
+  .rss-link {
+    gap: 7px;
+
+    border: 1px solid var(--color-border);
+
+    background: var(--color-subtle);
+
+    color: var(--color-text);
+  }
+
+  .share-button:hover:not(:disabled),
+  .rss-link:hover {
+    text-decoration: underline;
+  }
+
+  .share-button:focus-visible,
+  .rss-link:focus-visible {
+    outline: 2px solid var(--color-accent);
+
+    outline-offset: 3px;
+  }
+
+  .share-status {
+    min-height: 1.5em;
+
+    margin: 14px 0 0;
+
+    color: var(--color-muted);
+
+    font-size: 14px;
+
+    line-height: 1.5;
+  }
+
+  .share-status:empty {
+    margin-top: 0;
+  }
+
+  @media (max-width: 560px) {
+    .article-actions {
+      padding: 22px;
+    }
+
+    .article-actions-buttons {
+      flex-direction: column;
+    }
+
+    .share-button,
+    .rss-link {
+      width: 100%;
+    }
+  }
+</style>

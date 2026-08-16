@@ -219,3 +219,189 @@ test("另一篇博客详情页也可以推荐共享标签的文章", async ({ pa
     }),
   ).toHaveCount(0);
 });
+
+test("支持 Web Share API 时会使用原生分享", async ({ page }) => {
+  await page.addInitScript(() => {
+    const shareCalls: ShareData[] = [];
+
+    Object.defineProperty(window, "__shareCalls", {
+      configurable: true,
+      value: shareCalls,
+    });
+
+    Object.defineProperty(navigator, "share", {
+      configurable: true,
+      value: async (data: ShareData) => {
+        shareCalls.push(data);
+      },
+    });
+  });
+
+  await page.goto("/blog/astro-learning-notes");
+
+  const actions = page.getByRole("region", {
+    name: "分享与订阅",
+  });
+
+  await actions
+    .getByRole("button", {
+      name: "分享文章",
+    })
+    .click();
+
+  await expect(actions.getByRole("status")).toHaveText("文章已分享。");
+
+  const shareCalls = await page.evaluate(() => {
+    return (
+      window as typeof window & {
+        __shareCalls: ShareData[];
+      }
+    ).__shareCalls;
+  });
+
+  expect(shareCalls).toHaveLength(1);
+
+  expect(shareCalls[0]?.title).toBe("我的 Astro 学习记录");
+
+  expect(new URL(shareCalls[0]?.url ?? "").pathname).toBe(
+    "/blog/astro-learning-notes",
+  );
+});
+
+test("不支持 Web Share API 时会复制文章链接", async ({ page }) => {
+  await page.addInitScript(() => {
+    const clipboardWrites: string[] = [];
+
+    Object.defineProperty(window, "__clipboardWrites", {
+      configurable: true,
+      value: clipboardWrites,
+    });
+
+    Object.defineProperty(navigator, "share", {
+      configurable: true,
+      value: undefined,
+    });
+
+    Object.defineProperty(navigator, "clipboard", {
+      configurable: true,
+      value: {
+        writeText: async (text: string) => {
+          clipboardWrites.push(text);
+        },
+      },
+    });
+  });
+
+  await page.goto("/blog/astro-learning-notes");
+
+  const actions = page.getByRole("region", {
+    name: "分享与订阅",
+  });
+
+  await actions
+    .getByRole("button", {
+      name: "分享文章",
+    })
+    .click();
+
+  await expect(actions.getByRole("status")).toHaveText("文章链接已复制。");
+
+  const clipboardWrites = await page.evaluate(() => {
+    return (
+      window as typeof window & {
+        __clipboardWrites: string[];
+      }
+    ).__clipboardWrites;
+  });
+
+  expect(clipboardWrites).toHaveLength(1);
+
+  expect(new URL(clipboardWrites[0] ?? "").pathname).toBe(
+    "/blog/astro-learning-notes",
+  );
+});
+
+test("用户取消原生分享时不会错误回退到剪贴板", async ({ page }) => {
+  await page.addInitScript(() => {
+    const clipboardWrites: string[] = [];
+
+    Object.defineProperty(window, "__clipboardWrites", {
+      configurable: true,
+      value: clipboardWrites,
+    });
+
+    Object.defineProperty(navigator, "share", {
+      configurable: true,
+      value: async () => {
+        throw new DOMException("Share cancelled", "AbortError");
+      },
+    });
+
+    Object.defineProperty(navigator, "clipboard", {
+      configurable: true,
+      value: {
+        writeText: async (text: string) => {
+          clipboardWrites.push(text);
+        },
+      },
+    });
+  });
+
+  await page.goto("/blog/astro-learning-notes");
+
+  const actions = page.getByRole("region", {
+    name: "分享与订阅",
+  });
+
+  await actions
+    .getByRole("button", {
+      name: "分享文章",
+    })
+    .click();
+
+  await expect(actions.getByRole("status")).toHaveText("");
+
+  const clipboardWrites = await page.evaluate(() => {
+    return (
+      window as typeof window & {
+        __clipboardWrites: string[];
+      }
+    ).__clipboardWrites;
+  });
+
+  expect(clipboardWrites).toHaveLength(0);
+
+  await expect(
+    actions.getByRole("button", {
+      name: "分享文章",
+    }),
+  ).toBeEnabled();
+});
+
+test("博客详情页提供可用的 RSS 订阅入口", async ({ page, request }) => {
+  await page.goto("/blog/astro-learning-notes");
+
+  const actions = page.getByRole("region", {
+    name: "分享与订阅",
+  });
+
+  const rssLink = actions.getByRole("link", {
+    name: "订阅博客 RSS",
+  });
+
+  await expect(rssLink).toHaveAttribute("href", "/rss.xml");
+
+  const rssResponse = await request.get("/rss.xml");
+
+  expect(rssResponse.status()).toBe(200);
+
+  const rssContentType = rssResponse.headers()["content-type"] ?? "";
+
+  expect(rssContentType).toMatch(/application\/(?:rss\+xml|xml)/);
+
+  const rssBody = await rssResponse.text();
+
+  expect(rssBody).toContain("我的 Astro 学习记录");
+
+  expect(rssBody).toContain("/blog/astro-learning-notes");
+});
