@@ -162,3 +162,60 @@ test("博客分页只生成实际存在的后续页面", async ({ request }) => 
 
   expect(missingSecondPage.status()).toBe(404);
 });
+
+test("博客详情页会展示相关文章并排除当前文章", async ({ page }) => {
+  await page.goto("/blog/astro-learning-notes");
+
+  const relatedPosts = page.getByRole("region", {
+    name: "相关文章",
+  });
+
+  await expect(relatedPosts).toBeVisible();
+
+  const relatedArticleLink = relatedPosts.getByRole("link", {
+    name: "为什么网页需要组件化",
+    exact: true,
+  });
+
+  await expect(relatedArticleLink).toBeVisible();
+
+  await expect(
+    relatedPosts.getByRole("link", {
+      name: "我的 Astro 学习记录",
+      exact: true,
+    }),
+  ).toHaveCount(0);
+
+  await relatedArticleLink.click();
+
+  await expect(page).toHaveURL(/\/blog\/component-thinking\/?$/);
+
+  await expect(
+    page.getByRole("heading", {
+      level: 1,
+      name: "为什么网页需要组件化",
+    }),
+  ).toBeVisible();
+});
+
+test("另一篇博客详情页也可以推荐共享标签的文章", async ({ page }) => {
+  await page.goto("/blog/component-thinking");
+
+  const relatedPosts = page.getByRole("region", {
+    name: "相关文章",
+  });
+
+  await expect(
+    relatedPosts.getByRole("link", {
+      name: "我的 Astro 学习记录",
+      exact: true,
+    }),
+  ).toBeVisible();
+
+  await expect(
+    relatedPosts.getByRole("link", {
+      name: "为什么网页需要组件化",
+      exact: true,
+    }),
+  ).toHaveCount(0);
+});

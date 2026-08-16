@@ -1,6 +1,8 @@
 import { describe, expect, test } from "vitest";
 
 import {
+  RELATED_BLOG_LIMIT,
+  getRelatedBlogPosts,
   getBlogAdditionalPageNumbers,
   getBlogTotalPages,
   BLOG_PAGE_SIZE,
@@ -477,5 +479,213 @@ describe("blog data utilities", () => {
     expect(() => getBlogAdditionalPageNumbers(-1)).toThrow(
       "Invalid blog post count",
     );
+  });
+
+  test("相关文章默认最多显示 3 篇", () => {
+    expect(RELATED_BLOG_LIMIT).toBe(3);
+  });
+
+  test("相关文章按照共同标签数量和发布日期排序", () => {
+    const currentPost = createBlogEntry({
+      id: "current-post",
+      pubDate: "2026-06-01",
+      tags: ["Astro", "性能", "测试"],
+    });
+
+    const posts = [
+      currentPost,
+
+      createBlogEntry({
+        id: "three-shared",
+        pubDate: "2026-01-01",
+        tags: ["Astro", "性能", "测试"],
+      }),
+
+      createBlogEntry({
+        id: "two-shared",
+        pubDate: "2026-05-01",
+        tags: ["Astro", "性能"],
+      }),
+
+      createBlogEntry({
+        id: "newer-one-shared",
+        pubDate: "2026-04-01",
+        tags: ["Astro"],
+      }),
+
+      createBlogEntry({
+        id: "older-one-shared",
+        pubDate: "2026-03-01",
+        tags: ["Astro"],
+      }),
+
+      createBlogEntry({
+        id: "unrelated",
+        pubDate: "2026-07-01",
+        tags: ["CSS"],
+      }),
+    ];
+
+    const result = getRelatedBlogPosts(posts, currentPost);
+
+    expect(result.map((post) => post.id)).toEqual([
+      "three-shared",
+      "two-shared",
+      "newer-one-shared",
+    ]);
+  });
+
+  test("相关文章保持精确的 Tag identity", () => {
+    const currentPost = createBlogEntry({
+      id: "current-post",
+      pubDate: "2026-03-01",
+      tags: ["Astro"],
+    });
+
+    const posts = [
+      currentPost,
+
+      createBlogEntry({
+        id: "exact-match",
+        pubDate: "2026-02-01",
+        tags: ["Astro"],
+      }),
+
+      createBlogEntry({
+        id: "different-identity",
+        pubDate: "2026-01-01",
+        tags: ["astro"],
+      }),
+    ];
+
+    expect(
+      getRelatedBlogPosts(posts, currentPost).map((post) => post.id),
+    ).toEqual(["exact-match"]);
+  });
+
+  test("没有共同标签时不返回相关文章", () => {
+    const currentPost = createBlogEntry({
+      id: "current-post",
+      pubDate: "2026-02-01",
+      tags: ["Astro"],
+    });
+
+    const unrelatedPost = createBlogEntry({
+      id: "unrelated",
+      pubDate: "2026-01-01",
+      tags: ["CSS"],
+    });
+
+    expect(
+      getRelatedBlogPosts([currentPost, unrelatedPost], currentPost),
+    ).toEqual([]);
+  });
+
+  test("相关文章数量可以使用自定义 limit", () => {
+    const currentPost = createBlogEntry({
+      id: "current-post",
+      pubDate: "2026-04-01",
+      tags: ["Astro"],
+    });
+
+    const posts = [
+      currentPost,
+
+      createBlogEntry({
+        id: "post-1",
+        pubDate: "2026-03-01",
+        tags: ["Astro"],
+      }),
+
+      createBlogEntry({
+        id: "post-2",
+        pubDate: "2026-02-01",
+        tags: ["Astro"],
+      }),
+
+      createBlogEntry({
+        id: "post-3",
+        pubDate: "2026-01-01",
+        tags: ["Astro"],
+      }),
+    ];
+
+    expect(
+      getRelatedBlogPosts(posts, currentPost, 2).map((post) => post.id),
+    ).toEqual(["post-1", "post-2"]);
+  });
+
+  test("相关文章计算不会修改原始文章数组", () => {
+    const currentPost = createBlogEntry({
+      id: "current-post",
+      pubDate: "2026-03-01",
+      tags: ["Astro"],
+    });
+
+    const olderPost = createBlogEntry({
+      id: "older-post",
+      pubDate: "2026-01-01",
+      tags: ["Astro"],
+    });
+
+    const newerPost = createBlogEntry({
+      id: "newer-post",
+      pubDate: "2026-02-01",
+      tags: ["Astro"],
+    });
+
+    const posts = [currentPost, olderPost, newerPost];
+
+    getRelatedBlogPosts(posts, currentPost);
+
+    expect(posts.map((post) => post.id)).toEqual([
+      "current-post",
+      "older-post",
+      "newer-post",
+    ]);
+  });
+
+  test("无效的相关文章数量会被拒绝", () => {
+    const currentPost = createBlogEntry({
+      id: "current-post",
+      pubDate: "2026-01-01",
+      tags: ["Astro"],
+    });
+
+    expect(() => getRelatedBlogPosts([currentPost], currentPost, 0)).toThrow(
+      "Invalid related blog limit",
+    );
+
+    expect(() => getRelatedBlogPosts([currentPost], currentPost, 1.5)).toThrow(
+      "Invalid related blog limit",
+    );
+  });
+
+  test("重复标签不会重复增加相关文章相关度", () => {
+    const currentPost = createBlogEntry({
+      id: "current-post",
+      pubDate: "2026-04-01",
+      tags: ["Astro", "性能"],
+    });
+
+    const posts = [
+      currentPost,
+
+      createBlogEntry({
+        id: "duplicated-tag",
+        pubDate: "2026-03-01",
+        tags: ["Astro", "Astro"],
+      }),
+
+      createBlogEntry({
+        id: "two-real-shared",
+        pubDate: "2026-01-01",
+        tags: ["Astro", "性能"],
+      }),
+    ];
+
+    expect(
+      getRelatedBlogPosts(posts, currentPost).map((post) => post.id),
+    ).toEqual(["two-real-shared", "duplicated-tag"]);
   });
 });
