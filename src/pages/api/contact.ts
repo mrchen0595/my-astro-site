@@ -2,6 +2,11 @@ import type { APIRoute } from "astro";
 import { getSecret } from "astro:env/server";
 import { Resend } from "resend";
 
+import {
+  normalizeContactRequest,
+  validateContactSubmission,
+} from "../../lib/contact";
+
 export const prerender = false;
 
 type RequestBody = Record<string, unknown>;
@@ -14,25 +19,6 @@ function jsonResponse(body: unknown, status = 200): Response {
       "Cache-Control": "no-store",
     },
   });
-}
-
-function readSingleLine(value: unknown, maxLength: number): string {
-  if (typeof value !== "string") {
-    return "";
-  }
-
-  return value
-    .trim()
-    .replace(/[\r\n]+/g, " ")
-    .slice(0, maxLength);
-}
-
-function readMessage(value: unknown, maxLength: number): string {
-  if (typeof value !== "string") {
-    return "";
-  }
-
-  return value.trim().slice(0, maxLength);
 }
 
 function escapeHtml(value: string): string {
@@ -48,8 +34,6 @@ function escapeHtml(value: string): string {
     return entities[character];
   });
 }
-
-const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export const POST: APIRoute = async ({ request }) => {
   const contentType = request.headers.get("content-type") ?? "";
@@ -94,20 +78,15 @@ export const POST: APIRoute = async ({ request }) => {
 
   const body = rawBody as RequestBody;
 
-  const name = readSingleLine(body.name, 40);
+  const { submission, website } = normalizeContactRequest(body);
 
-  const email = readSingleLine(body.email, 100);
-
-  const subject = readSingleLine(body.subject, 80);
-
-  const message = readMessage(body.message, 1000);
+  const { name, email, subject, message } = submission;
 
   // 隐藏字段：正常用户不会填写。
   // 自动化垃圾程序经常会填写它。
-  const website = readSingleLine(body.website, 200);
-
-  // 对疑似机器人返回假成功，
-  // 但不真正发送邮件。
+  //
+  // 这里故意仍然由 route 决定 honeypot policy，
+  // 而不是把“机器人应该怎么办”塞进纯 validation。
   if (website) {
     return jsonResponse({
       ok: true,
@@ -115,19 +94,7 @@ export const POST: APIRoute = async ({ request }) => {
     });
   }
 
-  const errors: Record<string, string> = {};
-
-  if (name.length < 2) {
-    errors.name = "姓名至少需要 2 个字符。";
-  }
-
-  if (!emailPattern.test(email)) {
-    errors.email = "请输入有效的邮箱地址。";
-  }
-
-  if (message.length < 10) {
-    errors.message = "留言至少需要 10 个字符。";
-  }
+  const errors = validateContactSubmission(submission);
 
   if (Object.keys(errors).length > 0) {
     return jsonResponse(
