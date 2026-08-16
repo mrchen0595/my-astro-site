@@ -7,6 +7,13 @@ import {
   validateContactSubmission,
 } from "../../lib/contact";
 import { buildContactEmail } from "../../lib/contact-email";
+import {
+  insertContactSubmission,
+  markContactNotificationFailed,
+  markContactNotificationSent,
+} from "../../lib/contact-repository";
+import { processContactSubmission } from "../../lib/contact-service";
+import { withDatabase } from "../../lib/db";
 
 export const prerender = false;
 
@@ -89,66 +96,80 @@ export const POST: APIRoute = async ({ request }) => {
     );
   }
 
-  const apiKey = getSecret("RESEND_API_KEY");
-  const contactToEmail = getSecret("CONTACT_TO_EMAIL");
-
-  const contactFromEmail =
-    getSecret("CONTACT_FROM_EMAIL") ?? "William 网站 <onboarding@resend.dev>";
-
-  if (!apiKey || !contactToEmail) {
-    console.error("Missing Resend environment variables.");
-
-    return jsonResponse(
-      {
-        ok: false,
-        message: "服务器邮件配置不完整。",
-      },
-      500,
-    );
-  }
-
-  const emailContent = buildContactEmail(submission);
-
-  const resend = new Resend(apiKey);
-
-  try {
-    const { data, error } = await resend.emails.send({
-      from: contactFromEmail,
-      to: [contactToEmail],
-      replyTo: emailContent.replyTo,
-      subject: emailContent.subject,
-      text: emailContent.text,
-      html: emailContent.html,
-    });
-
-    if (error) {
-      console.error("Resend send error:", error);
-
-      return jsonResponse(
-        {
-          ok: false,
-          message: "邮件服务暂时不可用，请稍后再试。",
-        },
-        502,
+  const result = await processContactSubmission(submission, {
+    persist: async (value) => {
+      const stored = await withDatabase((sql) =>
+        insertContactSubmission(sql, value),
       );
-    }
 
-    return jsonResponse({
-      ok: true,
-      message: "留言已成功发送到我的邮箱。",
-      emailId: data?.id,
-    });
-  } catch (error) {
-    console.error("Unexpected contact API error:", error);
+      return {
+        id: stored.id,
+      };
+    },
 
+    notify: async (value) => {
+      const apiKey = getSecret("RESEND_API_KEY");
+      const contactToEmail = getSecret("CONTACT_TO_EMAIL");
+
+      const contactFromEmail =
+        getSecret("CONTACT_FROM_EMAIL") ??
+        "William 网站 <onboarding@resend.dev>";
+
+      if (!apiKey || !contactToEmail) {
+        throw new Error("Resend environment variables are not configured.");
+      }
+
+      const emailContent = buildContactEmail(value);
+
+      const resend = new Resend(apiKey);
+
+      const { data, error } = await resend.emails.send({
+        from: contactFromEmail,
+        to: [contactToEmail],
+        replyTo: emailContent.replyTo,
+        subject: emailContent.subject,
+        text: emailContent.text,
+        html: emailContent.html,
+      });
+
+      if (error) {
+        throw new Error("Resend failed to send contact notification.", {
+          cause: error,
+        });
+      }
+
+      return {
+        messageId: data?.id ?? null,
+      };
+    },
+
+    markNotificationSent: async (submissionId, messageId) => {
+      await withDatabase((sql) =>
+        markContactNotificationSent(sql, submissionId, messageId),
+      );
+    },
+
+    markNotificationFailed: async (submissionId) => {
+      await withDatabase((sql) =>
+        markContactNotificationFailed(sql, submissionId),
+      );
+    },
+  });
+
+  if (!result.ok) {
     return jsonResponse(
       {
         ok: false,
-        message: "服务器发生异常，请稍后再试。",
+        message: "留言暂时无法保存，请稍后再试。",
       },
-      500,
+      503,
     );
   }
+
+  return jsonResponse({
+    ok: true,
+    message: "留言已收到。",
+  });
 };
 
 export const GET: APIRoute = () => {

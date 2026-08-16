@@ -64,7 +64,7 @@ export async function insertContactSubmission(
 export async function markContactNotificationSent(
   sql: DatabaseClient,
   submissionId: string,
-  messageId: string,
+  messageId: string | null,
 ): Promise<void> {
   const rows = await sql<{ id: string }[]>`
     update public.contact_submissions
