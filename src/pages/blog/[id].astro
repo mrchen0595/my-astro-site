@@ -1,5 +1,5 @@
 ---
-import { getCollection, render, type CollectionEntry } from "astro:content";
+import { render } from "astro:content";
 
 import { getImage } from "astro:assets";
 
@@ -13,7 +13,14 @@ import StructuredData from "../../components/StructuredData.astro";
 
 import Breadcrumbs from "../../components/Breadcrumbs.astro";
 
-import { createBlogTagSlug } from "../../lib/blog";
+import RelatedBlogPosts from "../../components/RelatedBlogPosts.astro";
+
+import {
+  createBlogTagSlug,
+  getPublishedBlogPosts,
+  getRelatedBlogPosts,
+  type BlogEntry,
+} from "../../lib/blog";
 
 import { createPageTitle } from "../../lib/seo";
 
@@ -22,11 +29,12 @@ import { createBlogPostingStructuredData } from "../../lib/structured-data";
 import { createSiteUrl, getBaseUrl } from "../../lib/url";
 
 interface Props {
-  post: CollectionEntry<"blog">;
+  post: BlogEntry;
+  relatedPosts: BlogEntry[];
 }
 
 export async function getStaticPaths() {
-  const posts = await getCollection("blog", ({ data }) => data.draft !== true);
+  const posts = await getPublishedBlogPosts();
 
   return posts.map((post) => ({
     params: {
@@ -35,11 +43,12 @@ export async function getStaticPaths() {
 
     props: {
       post,
+      relatedPosts: getRelatedBlogPosts(posts, post),
     },
   }));
 }
 
-const { post } = Astro.props;
+const { post, relatedPosts } = Astro.props;
 
 const { Content } = await render(post);
 
@@ -160,6 +169,8 @@ const breadcrumbItems = [
         <Content />
       </div>
     </article>
+
+    <RelatedBlogPosts posts={relatedPosts} />
   </main>
 </BaseLayout>
 

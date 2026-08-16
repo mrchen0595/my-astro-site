@@ -13,6 +13,8 @@ export interface BlogTagRouteItem extends BlogTagItem {
 
 export const BLOG_PAGE_SIZE = 6;
 
+export const RELATED_BLOG_LIMIT = 3;
+
 export interface BlogPageData {
   posts: BlogEntry[];
 
@@ -154,6 +156,57 @@ export function getBlogPostsByTag(
 ): BlogEntry[] {
   return posts.filter((post) => post.data.tags.includes(tagName));
 }
+/**
+ * 根据共同标签选择相关文章。
+ *
+ * 排除当前文章，只保留至少具有一个共同标签的文章。
+ * 共同标签越多越相关；相关度相同时，较新的文章优先。
+ */
+export function getRelatedBlogPosts(
+  posts: BlogEntry[],
+  currentPost: BlogEntry,
+  limit = RELATED_BLOG_LIMIT,
+): BlogEntry[] {
+  if (!Number.isInteger(limit) || limit < 1) {
+    throw new Error(`Invalid related blog limit: ${limit}.`);
+  }
+
+  const currentTags = new Set(currentPost.data.tags);
+
+  return posts
+    .filter((post) => post.id !== currentPost.id)
+    .map((post, index) => {
+      const sharedTagCount = [...new Set(post.data.tags)].filter((tag) =>
+        currentTags.has(tag),
+      ).length;
+
+      return {
+        post,
+        sharedTagCount,
+        index,
+      };
+    })
+    .filter(({ sharedTagCount }) => sharedTagCount > 0)
+    .sort((first, second) => {
+      const relevanceDifference = second.sharedTagCount - first.sharedTagCount;
+
+      if (relevanceDifference !== 0) {
+        return relevanceDifference;
+      }
+
+      const dateDifference =
+        second.post.data.pubDate.getTime() - first.post.data.pubDate.getTime();
+
+      if (dateDifference !== 0) {
+        return dateDifference;
+      }
+
+      return first.index - second.index;
+    })
+    .slice(0, limit)
+    .map(({ post }) => post);
+}
+
 /**
  * 一次准备博客列表页需要的数据。
  */

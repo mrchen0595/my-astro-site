@@ -1,0 +1,95 @@
+---
+import BlogCard from "./BlogCard.astro";
+
+import type { BlogEntry } from "../lib/blog";
+
+interface Props {
+  posts: BlogEntry[];
+}
+
+const { posts } = Astro.props;
+
+const shouldRender = posts.length > 0;
+---
+
+{
+  shouldRender && (
+    <section class="related-posts" aria-labelledby="related-posts-title">
+      <div class="related-heading">
+        <p class="label">KEEP READING</p>
+
+        <h2 id="related-posts-title">相关文章</h2>
+
+        <p>继续阅读与当前主题相关的内容。</p>
+      </div>
+
+      <div class="related-grid">
+        {posts.map((post) => (
+          <div class="related-item">
+            <BlogCard post={post} />
+          </div>
+        ))}
+      </div>
+    </section>
+  )
+}
+
+<style>
+  .related-posts {
+    margin-top: 44px;
+  }
+
+  .related-heading {
+    max-width: 620px;
+  }
+
+  .label {
+    margin: 0;
+
+    color: var(--color-accent);
+
+    font-size: 12px;
+
+    font-weight: 800;
+
+    letter-spacing: 0.16em;
+  }
+
+  h2 {
+    margin: 10px 0 0;
+
+    font-size: 30px;
+
+    line-height: 1.25;
+  }
+
+  .related-heading > p:last-child {
+    margin: 10px 0 0;
+
+    color: var(--color-muted);
+
+    line-height: 1.7;
+  }
+
+  .related-grid {
+    display: grid;
+
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+
+    gap: 20px;
+
+    margin-top: 24px;
+  }
+
+  .related-item {
+    min-width: 0;
+
+    height: 100%;
+  }
+
+  @media (max-width: 680px) {
+    .related-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
