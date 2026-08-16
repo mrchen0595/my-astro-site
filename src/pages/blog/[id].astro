@@ -13,6 +13,8 @@ import StructuredData from "../../components/StructuredData.astro";
 
 import Breadcrumbs from "../../components/Breadcrumbs.astro";
 
+import { createBlogTagSlug } from "../../lib/blog";
+
 import { createPageTitle } from "../../lib/seo";
 
 import { createBlogPostingStructuredData } from "../../lib/structured-data";
@@ -136,7 +138,9 @@ const breadcrumbItems = [
           post.data.tags.length > 0 && (
             <ul class="tag-list" aria-label="文章标签">
               {post.data.tags.map((tag) => (
-                <li>{tag}</li>
+                <li>
+                  <a href={`/blog/tags/${createBlogTagSlug(tag)}`}>{tag}</a>
+                </li>
               ))}
             </ul>
           )
@@ -258,8 +262,14 @@ const breadcrumbItems = [
     list-style: none;
   }
 
-  .tag-list li {
-    padding: 7px 10px;
+  .tag-list a {
+    display: inline-flex;
+
+    align-items: center;
+
+    min-height: 32px;
+
+    padding: 4px 10px;
 
     border-radius: 8px;
 
@@ -270,6 +280,12 @@ const breadcrumbItems = [
     font-size: 13px;
 
     font-weight: 800;
+
+    text-decoration: none;
+  }
+
+  .tag-list a:hover {
+    text-decoration: underline;
   }
 
   .article-content {

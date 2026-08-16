@@ -1,0 +1,201 @@
+---
+import type { BlogTagRouteItem } from "../lib/blog";
+
+interface Props {
+  tags: BlogTagRouteItem[];
+  total: number;
+}
+
+const { tags, total } = Astro.props;
+---
+
+<section class="blog-discovery" aria-labelledby="blog-discovery-title">
+  <div class="discovery-heading">
+    <div>
+      <h2 id="blog-discovery-title">发现更多文章</h2>
+
+      <p>按主题浏览，或搜索全部博客内容。</p>
+    </div>
+
+    <a class="search-link" href="/search?type=blog">
+      搜索全部博客
+      <span aria-hidden="true">→</span>
+    </a>
+  </div>
+
+  <nav class="tag-navigation" aria-label="博客标签">
+    <a class="tag-link active" href="/blog" aria-current="page">
+      全部
+      <span>{total}</span>
+    </a>
+
+    {
+      tags.map((tag) => (
+        <a class="tag-link" href={`/blog/tags/${tag.slug}`}>
+          {tag.name}
+          <span>{tag.count}</span>
+        </a>
+      ))
+    }
+  </nav>
+</section>
+
+<style>
+  .blog-discovery {
+    margin-top: 52px;
+
+    padding: 26px;
+
+    border: 1px solid var(--color-border);
+
+    border-radius: 20px;
+
+    background: var(--color-surface);
+  }
+
+  .discovery-heading {
+    display: flex;
+
+    align-items: flex-start;
+
+    justify-content: space-between;
+
+    gap: 24px;
+  }
+
+  h2 {
+    margin: 0;
+
+    font-size: 20px;
+  }
+
+  p {
+    margin: 8px 0 0;
+
+    color: var(--color-muted);
+
+    line-height: 1.6;
+  }
+
+  .search-link {
+    display: inline-flex;
+
+    flex-shrink: 0;
+
+    align-items: center;
+
+    gap: 8px;
+
+    min-height: 44px;
+
+    padding: 0 14px;
+
+    border: 1px solid var(--color-border);
+
+    border-radius: 10px;
+
+    color: var(--color-accent);
+
+    font-weight: 800;
+
+    text-decoration: none;
+  }
+
+  .search-link:hover {
+    border-color: var(--color-accent);
+
+    text-decoration: underline;
+  }
+
+  .tag-navigation {
+    display: flex;
+
+    flex-wrap: wrap;
+
+    gap: 9px;
+
+    margin-top: 24px;
+  }
+
+  .tag-link {
+    display: inline-flex;
+
+    align-items: center;
+
+    gap: 7px;
+
+    min-height: 38px;
+
+    padding: 0 13px;
+
+    border: 1px solid var(--color-border);
+
+    border-radius: 999px;
+
+    color: var(--color-text-soft);
+
+    font-weight: 700;
+
+    text-decoration: none;
+  }
+
+  .tag-link span {
+    display: inline-grid;
+
+    place-items: center;
+
+    min-width: 22px;
+
+    height: 22px;
+
+    padding: 0 6px;
+
+    border-radius: 999px;
+
+    background: var(--color-subtle);
+
+    font-size: 12px;
+  }
+
+  .tag-link:hover {
+    border-color: var(--color-accent);
+
+    color: var(--color-accent);
+  }
+
+  .tag-link.active {
+    border-color: var(--color-accent);
+
+    background: var(--color-accent);
+
+    color: var(--color-on-accent);
+  }
+
+  .tag-link.active span {
+    background: rgba(255, 255, 255, 0.2);
+
+    color: var(--color-on-accent);
+  }
+
+  @media (max-width: 650px) {
+    .blog-discovery {
+      padding: 20px;
+    }
+
+    .discovery-heading {
+      flex-direction: column;
+    }
+
+    .tag-navigation {
+      flex-wrap: nowrap;
+
+      overflow-x: auto;
+
+      padding-bottom: 6px;
+    }
+
+    .tag-link {
+      flex-shrink: 0;
+    }
+  }
+</style>

@@ -128,24 +128,58 @@ test.describe("SEO 元数据", () => {
     );
   });
 
+  test("博客标签页使用标签自己的 SEO 数据和 canonical", async ({ page }) => {
+    await page.goto("/blog/tags/astro");
+
+    const expectedTitle = createPageTitle("Astro 标签");
+
+    const expectedDescription =
+      "查看 William 关于 Astro 的博客文章和前端学习记录。";
+
+    await expect(page).toHaveTitle(expectedTitle);
+
+    await expect(page.locator('meta[name="description"]')).toHaveAttribute(
+      "content",
+      expectedDescription,
+    );
+
+    await expect(page.locator('meta[property="og:title"]')).toHaveAttribute(
+      "content",
+      expectedTitle,
+    );
+
+    await expect(
+      page.locator('meta[property="og:description"]'),
+    ).toHaveAttribute("content", expectedDescription);
+
+    await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
+      "href",
+      /\/blog\/tags\/astro\/?$/,
+    );
+
+    await expect(page.locator('meta[property="og:url"]')).toHaveAttribute(
+      "content",
+      /\/blog\/tags\/astro\/?$/,
+    );
+
+    await expect(page.locator('meta[property="og:type"]')).toHaveAttribute(
+      "content",
+      "website",
+    );
+  });
   test("博客详情页使用文章自己的 SEO 数据", async ({ page }) => {
     await page.goto("/blog");
 
-    const firstPost = page.locator("[data-blog-item]").first();
+    const articleLink = page.getByRole("link", {
+      name: "我的 Astro 学习记录",
+      exact: true,
+    });
 
-    const articleLink = firstPost
-      .getByRole("heading", {
-        level: 2,
-      })
-      .getByRole("link");
-
-    const articleTitle = (await articleLink.textContent())?.trim();
-
-    expect(articleTitle).toBeTruthy();
+    await expect(articleLink).toBeVisible();
 
     await articleLink.click();
 
-    await expect(page).toHaveTitle(createPageTitle(articleTitle!));
+    await expect(page).toHaveTitle(createPageTitle("我的 Astro 学习记录"));
 
     await expect(page.locator('meta[name="description"]')).not.toHaveAttribute(
       "content",
