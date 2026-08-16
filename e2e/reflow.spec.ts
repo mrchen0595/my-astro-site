@@ -219,13 +219,10 @@ for (const viewport of viewportCases) {
     test("博客详情页可以正常 Reflow", async ({ page }) => {
       await preparePage(page, "/blog");
 
-      const firstPost = page.locator("[data-blog-item]").first();
-
-      const articleLink = firstPost
-        .getByRole("heading", {
-          level: 2,
-        })
-        .getByRole("link");
+      const articleLink = page.getByRole("link", {
+        name: "我的 Astro 学习记录",
+        exact: true,
+      });
 
       const href = await articleLink.getAttribute("href");
 
@@ -329,16 +326,15 @@ test.describe("320px 关键控件 Reflow", () => {
   test("博客卡片不会被横向裁切", async ({ page }) => {
     await preparePage(page, "/blog");
 
-    const firstPost = page.locator("[data-blog-item]").first();
+    const firstCard = page.locator("article.blog-card").first();
 
-    await expectElementInsideViewport(firstPost, "第一篇博客卡片");
+    await expectElementInsideViewport(firstCard, "第一篇博客卡片");
 
     await expectElementInsideViewport(
-      firstPost
-        .getByRole("heading", {
-          level: 2,
-        })
-        .getByRole("link"),
+      firstCard.getByRole("link", {
+        name: "我的 Astro 学习记录",
+        exact: true,
+      }),
       "博客标题链接",
     );
   });

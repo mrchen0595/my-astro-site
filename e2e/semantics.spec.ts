@@ -168,13 +168,10 @@ test.describe("页面语义结构", () => {
   test("博客详情页具有正确的页面结构", async ({ page }) => {
     await page.goto("/blog");
 
-    const firstPost = page.locator("[data-blog-item]").first();
-
-    const articleLink = firstPost
-      .getByRole("heading", {
-        level: 2,
-      })
-      .getByRole("link");
+    const articleLink = page.getByRole("link", {
+      name: "我的 Astro 学习记录",
+      exact: true,
+    });
 
     await expect(articleLink).toBeVisible();
 

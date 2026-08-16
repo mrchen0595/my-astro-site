@@ -113,19 +113,14 @@ test.describe("axe Accessibility Audit", () => {
   test("博客详情页没有自动检测到的 WCAG A/AA 问题", async ({ page }) => {
     await page.goto("/blog");
 
-    const firstPost = page.locator("[data-blog-item]").first();
+    const articleLink = page.getByRole("link", {
+      name: "我的 Astro 学习记录",
+      exact: true,
+    });
 
-    const articleLink = firstPost
-      .getByRole("heading", {
-        level: 2,
-      })
-      .getByRole("link");
+    await expect(articleLink).toBeVisible();
 
-    const href = await articleLink.getAttribute("href");
-
-    expect(href).toBeTruthy();
-
-    await page.goto(href!);
+    await articleLink.click();
 
     await expect(page).toHaveURL(/\/blog\/[^/]+\/?$/);
 

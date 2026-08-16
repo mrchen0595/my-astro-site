@@ -167,13 +167,10 @@ test.describe("结构化数据", () => {
   test("博客详情页输出 BlogPosting 和 BreadcrumbList", async ({ page }) => {
     await page.goto("/blog");
 
-    const firstPost = page.locator("[data-blog-item]").first();
-
-    const articleLink = firstPost
-      .getByRole("heading", {
-        level: 2,
-      })
-      .getByRole("link");
+    const articleLink = page.getByRole("link", {
+      name: "我的 Astro 学习记录",
+      exact: true,
+    });
 
     const articleTitle = (await articleLink.textContent())?.trim();
 
