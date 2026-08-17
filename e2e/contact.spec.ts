@@ -144,6 +144,168 @@ test.describe("联系表单", () => {
     await expect(page.locator("#message-count")).toHaveText("10");
   });
 
+  test("提交过于频繁时显示明确提示并保留表单内容", async ({ page }) => {
+    await page.route("**/api/contact", async (route) => {
+      await route.fulfill({
+        status: 429,
+        contentType: "text/plain",
+        body: "Too Many Requests",
+      });
+    });
+
+    await page.goto("/contact");
+
+    const name = page.getByLabel(/^姓名/);
+    const email = page.getByLabel(/^邮箱/);
+    const subject = page.getByLabel("主题", {
+      exact: true,
+    });
+    const message = page.getByLabel(/^留言/, {
+      exact: true,
+    });
+    const submitButton = page.getByRole("button", {
+      name: "提交表单",
+    });
+
+    await name.fill("William");
+    await email.fill("william@example.com");
+    await subject.fill("限流测试");
+    await message.fill("这是一条用于验证限流提示的完整留言内容。");
+
+    await submitButton.click();
+
+    console.table([
+      {
+        field: "name",
+        value: await name.inputValue(),
+        ariaInvalid: await name.getAttribute("aria-invalid"),
+        error: await page.locator("#contact-name-error").textContent(),
+      },
+      {
+        field: "email",
+        value: await email.inputValue(),
+        ariaInvalid: await email.getAttribute("aria-invalid"),
+        error: await page.locator("#contact-email-error").textContent(),
+      },
+      {
+        field: "message",
+        value: await message.inputValue(),
+        ariaInvalid: await message.getAttribute("aria-invalid"),
+        error: await page.locator("#contact-message-error").textContent(),
+      },
+    ]);
+
+    console.log("form status:", await page.getByRole("status").textContent());
+    await expect(page.getByRole("status")).toHaveText(
+      "提交过于频繁，请稍后再试。",
+    );
+
+    await expect(name).toHaveValue("William");
+    await expect(email).toHaveValue("william@example.com");
+    await expect(subject).toHaveValue("限流测试");
+    await expect(message).toHaveValue(
+      "这是一条用于验证限流提示的完整留言内容。",
+    );
+
+    await expect(submitButton).toBeEnabled();
+
+    await expect(page.locator("#contact-form")).toHaveAttribute(
+      "aria-busy",
+      "false",
+    );
+  });
+
+  test("服务器返回 JSON 错误时显示服务器提示并保留表单内容", async ({
+    page,
+  }) => {
+    await page.route("**/api/contact", async (route) => {
+      await route.fulfill({
+        status: 503,
+        json: {
+          ok: false,
+          message: "留言暂时无法保存，请稍后再试。",
+        },
+      });
+    });
+
+    await page.goto("/contact");
+
+    const name = page.getByLabel(/^姓名/);
+    const email = page.getByLabel(/^邮箱/);
+    const message = page.getByLabel(/^留言/, {
+      exact: true,
+    });
+    const submitButton = page.getByRole("button", {
+      name: "提交表单",
+    });
+
+    await name.fill("William");
+    await email.fill("william@example.com");
+    await message.fill("这是一条用于验证服务器错误提示的完整留言内容。");
+
+    await submitButton.click();
+
+    await expect(page.getByRole("status")).toHaveText(
+      "留言暂时无法保存，请稍后再试。",
+    );
+
+    await expect(name).toHaveValue("William");
+    await expect(email).toHaveValue("william@example.com");
+    await expect(message).toHaveValue(
+      "这是一条用于验证服务器错误提示的完整留言内容。",
+    );
+
+    await expect(submitButton).toBeEnabled();
+
+    await expect(page.locator("#contact-form")).toHaveAttribute(
+      "aria-busy",
+      "false",
+    );
+  });
+
+  test("服务器返回非 JSON 错误时显示通用提示并保留表单内容", async ({
+    page,
+  }) => {
+    await page.route("**/api/contact", async (route) => {
+      await route.fulfill({
+        status: 502,
+        contentType: "text/plain",
+        body: "Bad Gateway",
+      });
+    });
+
+    await page.goto("/contact");
+
+    const name = page.getByLabel(/^姓名/);
+    const email = page.getByLabel(/^邮箱/);
+    const message = page.getByLabel(/^留言/, {
+      exact: true,
+    });
+    const submitButton = page.getByRole("button", {
+      name: "提交表单",
+    });
+
+    await name.fill("William");
+    await email.fill("william@example.com");
+    await message.fill("这是一条用于验证非 JSON 错误响应的完整留言内容。");
+
+    await submitButton.click();
+
+    await expect(page.getByRole("status")).toHaveText("发送失败，请稍后重试。");
+
+    await expect(name).toHaveValue("William");
+    await expect(email).toHaveValue("william@example.com");
+    await expect(message).toHaveValue(
+      "这是一条用于验证非 JSON 错误响应的完整留言内容。",
+    );
+
+    await expect(submitButton).toBeEnabled();
+
+    await expect(page.locator("#contact-form")).toHaveAttribute(
+      "aria-busy",
+      "false",
+    );
+  });
   test("合法表单可以完成模拟提交", async ({ page }) => {
     await page.route("**/api/contact", async (route) => {
       const request = route.request();
