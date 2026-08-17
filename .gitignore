@@ -33,3 +33,5 @@ blob-report/
 # Lighthouse CI generated files
 .lighthouseci/
 lighthouse-report/
+.env*
+!/.env.example
