@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { processContactSubmission } from "../contact-service";
 
@@ -8,6 +8,9 @@ const submission = {
   subject: "测试",
   message: "这是一条用于测试 Contact Service 的完整留言。",
 };
+afterEach(() => {
+  vi.restoreAllMocks();
+});
 
 describe("processContactSubmission", () => {
   it("数据库保存成功并且通知成功", async () => {
@@ -70,15 +73,21 @@ describe("processContactSubmission", () => {
     expect(markNotificationFailed).not.toHaveBeenCalled();
   });
 
-  it("通知失败时留言仍然视为成功并标记 failed", async () => {
+  it("通知失败时留言仍然视为成功并记录 submissionId", async () => {
     const persist = vi.fn().mockResolvedValue({
       id: "submission-2",
     });
 
-    const notify = vi.fn().mockRejectedValue(new Error("resend failed"));
+    const notifyError = new Error("resend failed");
+
+    const notify = vi.fn().mockRejectedValue(notifyError);
 
     const markNotificationSent = vi.fn();
     const markNotificationFailed = vi.fn().mockResolvedValue(undefined);
+
+    const consoleError = vi
+      .spyOn(console, "error")
+      .mockImplementation(() => undefined);
 
     const result = await processContactSubmission(submission, {
       persist,
@@ -96,9 +105,14 @@ describe("processContactSubmission", () => {
     expect(markNotificationSent).not.toHaveBeenCalled();
 
     expect(markNotificationFailed).toHaveBeenCalledWith("submission-2");
+
+    expect(consoleError).toHaveBeenCalledWith("Contact notification error:", {
+      submissionId: "submission-2",
+      error: notifyError,
+    });
   });
 
-  it("通知状态更新失败不会让已保存留言变成提交失败", async () => {
+  it("通知状态更新失败不会让已保存留言变成提交失败并记录 submissionId", async () => {
     const persist = vi.fn().mockResolvedValue({
       id: "submission-3",
     });
@@ -107,11 +121,15 @@ describe("processContactSubmission", () => {
       messageId: "message-3",
     });
 
-    const markNotificationSent = vi
-      .fn()
-      .mockRejectedValue(new Error("status update failed"));
+    const statusError = new Error("status update failed");
+
+    const markNotificationSent = vi.fn().mockRejectedValue(statusError);
 
     const markNotificationFailed = vi.fn();
+
+    const consoleError = vi
+      .spyOn(console, "error")
+      .mockImplementation(() => undefined);
 
     const result = await processContactSubmission(submission, {
       persist,
@@ -125,5 +143,58 @@ describe("processContactSubmission", () => {
       submissionId: "submission-3",
       notification: "sent",
     });
+
+    expect(consoleError).toHaveBeenCalledWith(
+      "Contact notification status update error:",
+      {
+        submissionId: "submission-3",
+        error: statusError,
+      },
+    );
+  });
+
+  it("通知失败且 failed 状态更新也失败时记录 submissionId", async () => {
+    const persist = vi.fn().mockResolvedValue({
+      id: "submission-4",
+    });
+
+    const notifyError = new Error("resend failed");
+    const statusError = new Error("failed status update failed");
+
+    const notify = vi.fn().mockRejectedValue(notifyError);
+    const markNotificationSent = vi.fn();
+    const markNotificationFailed = vi.fn().mockRejectedValue(statusError);
+
+    const consoleError = vi
+      .spyOn(console, "error")
+      .mockImplementation(() => undefined);
+
+    const result = await processContactSubmission(submission, {
+      persist,
+      notify,
+      markNotificationSent,
+      markNotificationFailed,
+    });
+
+    expect(result).toEqual({
+      ok: true,
+      submissionId: "submission-4",
+      notification: "failed",
+    });
+
+    expect(markNotificationFailed).toHaveBeenCalledWith("submission-4");
+
+    expect(consoleError).toHaveBeenCalledWith("Contact notification error:", {
+      submissionId: "submission-4",
+      error: notifyError,
+    });
+
+    expect(consoleError).toHaveBeenCalledWith(
+      "Contact notification failure status update error:",
+      {
+        submissionId: "submission-4",
+        error: statusError,
+      },
+    );
   });
 });

@@ -56,7 +56,10 @@ export async function processContactSubmission(
         notification.messageId,
       );
     } catch (error) {
-      console.error("Contact notification status update error:", error);
+      console.error("Contact notification status update error:", {
+        submissionId: stored.id,
+        error,
+      });
     }
 
     return {
@@ -65,15 +68,18 @@ export async function processContactSubmission(
       notification: "sent",
     };
   } catch (error) {
-    console.error("Contact notification error:", error);
+    console.error("Contact notification error:", {
+      submissionId: stored.id,
+      error,
+    });
 
     try {
       await dependencies.markNotificationFailed(stored.id);
     } catch (statusError) {
-      console.error(
-        "Contact notification failure status update error:",
-        statusError,
-      );
+      console.error("Contact notification failure status update error:", {
+        submissionId: stored.id,
+        error: statusError,
+      });
     }
 
     return {
