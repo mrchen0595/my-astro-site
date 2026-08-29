@@ -11,6 +11,10 @@ export default defineConfig({
 
   adapter: vercel({
     staticHeaders: true,
+
+    webAnalytics: {
+      enabled: true,
+    },
   }),
 
   security: {
